@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="themeColor1">#9c27b0</color>
+    <color name="themeColor2">#7b1fa2</color>
+    <color name="white">#ffffff</color>
+    <color name="themeColor3">#e1bee7</color>
+    <color name="divider">#bdbdbd</color>
+    <color name="gray">#757575</color>
+    <color name="press_cover">#55757575</color>
+    <color name="black">#000000</color>
+    <color name="backgroud_color">#eeeeee</color>
+</resources>

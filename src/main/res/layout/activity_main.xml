@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.zhousl.musicplayer.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/themeColor1">
+
+        <TextView
+            android:id="@+id/local"
+            style="@style/tab_text_style"
+            android:text="个人" />
+
+        <TextView
+            android:id="@+id/remote"
+            style="@style/tab_text_style"
+            android:layout_toRightOf="@id/local"
+            android:text="曲库" />
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"></android.support.v4.view.ViewPager>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/divider" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/controller"
+        android:background="@color/themeColor2">
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:textColor="@color/white"
+            android:text="我好像在哪儿见过你"
+            android:singleLine="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:ellipsize="marquee"
+            android:textSize="13sp"
+            android:id="@+id/music_title"
+            android:layout_marginLeft="55dp"/>
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="薛之谦"
+            android:lines="1"
+            android:id="@+id/artist"
+            android:ellipsize="end"
+            android:layout_marginLeft="55dp"
+            android:layout_marginTop="28dp"
+            android:textColor="@color/themeColor3"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:src="@mipmap/m_album_black"
+            android:id="@+id/music_cover"
+            android:layout_marginLeft="10dp" />
+        <ImageView
+            android:layout_width="50dp"
+            android:src="@drawable/bt_press_selector"
+            android:layout_marginRight="16dp"
+            android:id="@+id/next"
+            android:padding="8dp"
+            android:layout_gravity="right|center_vertical"
+            android:layout_height="50dp" />
+        <ImageView
+            android:layout_width="50dp"
+            android:src="@drawable/play_pause_selector"
+            android:layout_marginRight="66dp"
+            android:padding="8dp"
+            android:id="@+id/play"
+            android:layout_gravity="right|center_vertical"
+            android:layout_height="50dp" />
+        <ImageView
+            android:layout_width="50dp"
+            android:src="@mipmap/m_last"
+            android:layout_marginRight="116dp"
+            android:padding="8dp"
+            android:id="@+id/last"
+            android:layout_gravity="right|center_vertical"
+            android:layout_height="50dp" />
+    </FrameLayout>
+</LinearLayout>
