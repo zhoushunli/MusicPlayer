@@ -96,4 +96,10 @@ public class Music {
     public void setCurPosition(long curPosition) {
         this.curPosition = curPosition;
     }
+
+    public enum State{
+        STATE_PAUSE,//暂停
+        STATE_PLAYING,//播放
+        STATE_IDLE//闲置
+    }
 }

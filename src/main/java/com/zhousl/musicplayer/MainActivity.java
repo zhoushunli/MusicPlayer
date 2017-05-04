@@ -122,26 +122,33 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
-    public void onPlayStart(int index,Music music){
-        refreshControllerStatus();
+    public void onPlayStart(int index, Music music) {
+        refreshControllerStatus(music);
     }
+
     @Override
     public void onClick(View v) {
-        if (v==mLast){
-            getBinder().stop(getCurIndex());
-            mLocalFrag.doPlayMusic(getCurIndex()-1);
+        if (v == mLast) {
+            getBinder().stop(getMusic());
+            mLocalFrag.getMusic().setPlaying(false);
+            mLocalFrag.doPlayMusic(getCurIndex() - 1);
             mLocalFrag.notifyPlayingChanged();
-        }else if (v==mNext){
-            getBinder().stop(getCurIndex());
-            mLocalFrag.doPlayMusic(getCurIndex()+1);
+        } else if (v == mNext) {
+            getBinder().stop(getMusic());
+            mLocalFrag.getMusic().setPlaying(false);
+            mLocalFrag.doPlayMusic(getCurIndex() + 1);
             mLocalFrag.notifyPlayingChanged();
-        }else if (v==mPlay){
-            if (getMusic().isPlaying()){
-                getBinder().pause(getCurIndex());
+        } else if (v == mPlay) {
+            if (getMusic() == null)
+                return;
+            if (getMusic().isPlaying()) {
+                getBinder().pause(getMusic());
                 mPlay.setSelected(false);
-            }else {
-                getBinder().resume(getCurIndex());
+            } else {
+                getBinder().resume(getMusic());
                 mPlay.setSelected(true);
+                mLocalFrag.getMusic().setPlaying(true);
+                mLocalFrag.notifyPlayingChanged();
             }
         }
     }
@@ -183,7 +190,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public Music getMusic() {
         return mBinder.getMusic();
     }
-    public int getCurIndex(){
+
+    public int getCurIndex() {
         return mBinder.getIndex();
     }
 
@@ -211,24 +219,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         }
     }
+
     public class PlayingChangeReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action!=null&&action.equals(Action.PLAY_NEXT)){
+            if (action != null && action.equals(Action.PLAY_NEXT)) {
                 mLocalFrag.notifyPlayingChanged();
-                refreshControllerStatus();
+                int index = intent.getIntExtra(Action.IntentKey.INDEX, -1);
+                refreshControllerStatus(mLocalFrag.getMusicList().get(index));
             }
         }
     }
 
-    private void refreshControllerStatus() {
-        mTitle.setText(getMusic().getName());
-        mArtist.setText(getMusic().getArtist());
-        if (getMusic().isPlaying()){
+    private void refreshControllerStatus(Music music) {
+        mTitle.setText(music.getName());
+        mArtist.setText(music.getArtist());
+        if (music.isPlaying()) {
             mPlay.setSelected(true);
-        }else {
+        } else {
             mPlay.setSelected(false);
         }
     }

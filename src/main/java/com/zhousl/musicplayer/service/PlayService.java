@@ -22,7 +22,6 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     private Player mPlayer;
     private ArrayList<Music> musicList = new ArrayList<>();
     private Music mMusic;
-    //当前播放index
     private int mIndex;
 
     @Override
@@ -39,35 +38,26 @@ public class PlayService extends Service implements Player.OnCompleteListener {
         return new MyBinder();
     }
 
-    /**
-     * 通过索引来查找到列表中的音乐
-     *
-     * @param index 需要播放的音乐位于列表中的索引值
-     */
     public void play(int index) {
-        if (index < 0)
-            index = musicList.size() - 1;
-        if (index > musicList.size() - 1)
-            index = 0;
+        this.mIndex=index;
         this.mMusic = musicList.get(index);
-        this.mIndex = index;
         mPlayer.play(mMusic);
     }
 
-    public void pause(int index) {
-        mPlayer.pause(musicList.get(index));
+    public void pause(Music music) {
+        mPlayer.pause(music);
     }
 
     public Music getMusic() {
-        return ((MusicPlayer) mPlayer).getMusic();
+        return mMusic;
     }
 
-    public void resume(int index) {
-        mPlayer.resume(musicList.get(index));
+    public void resume(Music music) {
+        mPlayer.resume(music);
     }
 
-    public void stop(int index) {
-        mPlayer.stop(musicList.get(index));
+    public void stop(Music music) {
+        mPlayer.stop(music);
     }
 
     public void setMusicList(ArrayList<Music> musicList) {
@@ -89,9 +79,9 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     public void onCompletion() {
         if (musicList.size() == 0)
             return;
-        mIndex += 1;
-        if (mIndex >= musicList.size())
-            mIndex = 0;
+        mIndex++;
+        if (mIndex==musicList.size())
+            mIndex=0;
         play(mIndex);
         notifyPlayingIndexChanged();
     }
@@ -113,16 +103,16 @@ public class PlayService extends Service implements Player.OnCompleteListener {
             PlayService.this.play(index);
         }
 
-        public void pause(int index) {
-            PlayService.this.pause(index);
+        public void pause(Music music) {
+            PlayService.this.pause(music);
         }
 
-        public void resume(int index) {
-            PlayService.this.resume(index);
+        public void resume(Music music) {
+            PlayService.this.resume(music);
         }
 
-        public void stop(int index) {
-            PlayService.this.stop(index);
+        public void stop(Music music) {
+            PlayService.this.stop(music);
         }
 
         public Music getMusic() {
