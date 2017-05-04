@@ -12,4 +12,5 @@
     <color name="press_cover">#55757575</color>
     <color name="black">#000000</color>
     <color name="backgroud_color">#eeeeee</color>
+    <color name="transparent">#00000000</color>
 </resources>

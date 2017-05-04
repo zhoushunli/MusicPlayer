@@ -1,6 +1,7 @@
 package com.zhousl.musicplayer.frag;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +15,7 @@ import com.zhousl.musicplayer.Music;
 import com.zhousl.musicplayer.MusicHelper;
 import com.zhousl.musicplayer.R;
 import com.zhousl.musicplayer.adapter.LocalMusicAdapter;
+import com.zhousl.musicplayer.view.PlayingActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -110,7 +112,7 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
      * @param music
      */
     private void openPlayingPane(Music music) {
-
+        startActivity(new Intent(getActivity(), PlayingActivity.class));
     }
 
     public void notifyPlayingChanged() {

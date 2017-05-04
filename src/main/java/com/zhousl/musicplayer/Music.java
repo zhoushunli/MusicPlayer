@@ -1,10 +1,13 @@
 package com.zhousl.musicplayer;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by shunli on 2017/4/28.
  */
 
-public class Music {
+public class Music implements Parcelable{
 
     private String name;//名称
     private String artist;//艺术家
@@ -16,6 +19,32 @@ public class Music {
     private String suffix;
     private String album;
     private boolean isPlaying;
+
+    protected Music(Parcel in) {
+        name = in.readString();
+        artist = in.readString();
+        duration = in.readLong();
+        curPosition = in.readLong();
+        size = in.readLong();
+        id = in.readLong();
+        filePath = in.readString();
+        suffix = in.readString();
+        album = in.readString();
+        isPlaying = in.readByte() != 0;
+    }
+    public Music(){}
+
+    public static final Creator<Music> CREATOR = new Creator<Music>() {
+        @Override
+        public Music createFromParcel(Parcel in) {
+            return new Music(in);
+        }
+
+        @Override
+        public Music[] newArray(int size) {
+            return new Music[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -95,6 +124,25 @@ public class Music {
 
     public void setCurPosition(long curPosition) {
         this.curPosition = curPosition;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(artist);
+        dest.writeLong(duration);
+        dest.writeLong(curPosition);
+        dest.writeLong(size);
+        dest.writeLong(id);
+        dest.writeString(filePath);
+        dest.writeString(suffix);
+        dest.writeString(album);
+        dest.writeByte((byte) (isPlaying ? 1 : 0));
     }
 
     public enum State{
