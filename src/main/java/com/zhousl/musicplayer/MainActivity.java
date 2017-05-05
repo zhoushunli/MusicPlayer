@@ -128,6 +128,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void onClick(View v) {
+        if (getMusic() == null)
+            return;
         if (v == mLast) {
             getBinder().stop(getMusic());
             mLocalFrag.getMusic().setPlaying(false);
@@ -139,13 +141,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             mLocalFrag.doPlayMusic(getCurIndex() + 1);
             mLocalFrag.notifyPlayingChanged();
         } else if (v == mPlay) {
-            if (getMusic() == null)
-                return;
             if (getMusic().isPlaying()) {
                 getBinder().pause(getMusic());
                 mPlay.setSelected(false);
             } else {
-                getBinder().resume(getMusic());
+                if (getMusic().getCurPosition() == 0) {
+                    mLocalFrag.doPlayMusic(getCurIndex());
+                } else {
+                    getBinder().resume(getMusic());
+                }
                 mPlay.setSelected(true);
                 mLocalFrag.getMusic().setPlaying(true);
                 mLocalFrag.notifyPlayingChanged();

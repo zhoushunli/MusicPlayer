@@ -10,6 +10,10 @@ public class Action {
     public static final String PLAY_PREVIOUS="play_previous";
     public static final String PAUSE="pause";
     public static final String RESUME="resume";
+    public static final String PLAY="play";
+    public static final String REMOTE_PLAY="play";
+    public static final String REMOTE_NEXT="remote_next";
+    public static final String REMOTE_PREVIOUS="remote_previous";
     public static class IntentKey{
         public static final String INDEX="index";
     }

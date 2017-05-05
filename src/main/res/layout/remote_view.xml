@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/controller"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:minHeight="60dp">
+
+    <TextView
+        android:id="@+id/music_title"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="13dp"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="我好像在哪儿见过你"
+        android:textColor="@color/textColor"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/artist"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="34dp"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="薛之谦"
+        android:textColor="@color/gray"
+        android:textSize="10sp" />
+
+    <ImageView
+        android:id="@+id/music_cover"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:src="@mipmap/m_album_black" />
+
+    <ImageView
+        android:id="@+id/next"
+        style="@style/remote_controller_bt_style"
+        android:layout_marginRight="40dp"
+        android:src="@mipmap/b_next" />
+
+    <ImageView
+        android:id="@+id/play"
+        style="@style/remote_controller_bt_style"
+        android:layout_marginRight="80dp"
+        android:src="@drawable/remote_play_pause_selector" />
+
+    <ImageView
+        android:id="@+id/last"
+        style="@style/remote_controller_bt_style"
+        android:layout_marginRight="120dp"
+        android:src="@mipmap/b_last" />
+
+    <ImageView
+        android:id="@+id/cancel"
+        style="@style/remote_controller_bt_style"
+        android:padding="5dp"
+        android:src="@mipmap/b_power" />
+</FrameLayout>
