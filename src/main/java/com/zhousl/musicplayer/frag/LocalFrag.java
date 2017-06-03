@@ -65,7 +65,7 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Music music = musicList.get(position);
-        mMusic = getCurRealPlayingMusic();//获取当前播放对象
+//        mMusic = getCurRealPlayingMusic();//获取当前播放对象
         if (mMusic == null) {//完全没有播放过
             doPlayMusic(position);
         } else {//有播放过，但是状态可能是播放状态和暂停状态
@@ -114,13 +114,13 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
             index = musicList.size() - 1;
         }
         mMusic = musicList.get(index);
-        ((MainActivity) getActivity()).getBinder().play(index);
-        ((MainActivity) getActivity()).onPlayStart(index, musicList.get(index));
+//        ((MainActivity) getActivity()).getBinder().play(index);
+//        ((MainActivity) getActivity()).onPlayStart(index, musicList.get(index));
     }
 
     public void doResumeMusic(Music music) {
-        ((MainActivity) getActivity()).getBinder().resume(music);
-        ((MainActivity) getActivity()).onPlayStart(musicList.indexOf(music), music);
+//        ((MainActivity) getActivity()).getBinder().resume(music);
+//        ((MainActivity) getActivity()).onPlayStart(musicList.indexOf(music), music);
     }
 
     /**
@@ -146,9 +146,9 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
         return mMusic;
     }
 
-    public Music getCurRealPlayingMusic() {
-        return ((MainActivity) getActivity()).getMusic();
-    }
+//    public Music getCurRealPlayingMusic() {
+//        return ((MainActivity) getActivity()).getMusic();
+//    }
 
     class MyTask extends AsyncTask<Void, File, Integer> {
 
@@ -169,8 +169,8 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
                 FragmentActivity activity = getActivity();
                 if (activity != null && activity instanceof MainActivity) {
                     MainActivity act = (MainActivity) activity;
-                    mMusic = act.getMusic();
-                    act.getBinder().setMusicList(musicList);
+//                    mMusic = act.getMusic();
+//                    act.getBinder().setMusicList(musicList);
                     if (mMusic == null)
                         mMusic = musicList.get(0);
                     checkForPlaying();//mMusic不为null，可能存在两种状态，即播放状态和暂停状态，需要判断
@@ -191,7 +191,7 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
                     }
                     music.setCurPosition(mMusic.getCurPosition());
                     mMusic = music;
-                    ((MainActivity) getActivity()).onPlayStart(musicList.indexOf(mMusic), mMusic);
+//                    ((MainActivity) getActivity()).onPlayStart(musicList.indexOf(mMusic), mMusic);
                     return;
                 }
             }

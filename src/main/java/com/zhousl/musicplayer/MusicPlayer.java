@@ -7,6 +7,7 @@ import com.zhousl.musicplayer.interf.Player;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by shunli on 2017/4/27.
@@ -17,15 +18,22 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     //用于播放的播放器
     private MediaPlayer mPlayer;
+    //播放出错监听
     private OnErrorListener onErrorListener;
+    //定点播放监听
     private OnSeekCompleteListener onSeekCompleteListener;
+    //播放完毕监听
     private OnCompleteListener onCompleteListener;
     //当前播放的音乐
     private Music mMusic;
     //默认播放状态为全部循环
-    private State mState=State.STATE_LOOP_ALL;
+    private State mState = State.STATE_LOOP_ALL;
     //内部维护的播放列队
     private ArrayList<Music> musicList;
+    //当前播放的索引
+    private int mIndex;
+    //用于获得随机索引值
+    private Random mRandom;
 
     public MusicPlayer() {
         mPlayer = new MediaPlayer();
@@ -33,6 +41,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnSeekCompleteListener(this);
         mPlayer.setOnErrorListener(this);
+        mRandom=new Random();
     }
 
     public Music getMusic() {
@@ -56,9 +65,69 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         }
     }
 
+    /**
+     * 获取内部播放列队
+     * @return
+     */
+    public ArrayList<Music> getMusicList() {
+        return musicList;
+    }
+
+    /**
+     * 设置内部播放列队
+     * @param musicList
+     */
+    public void setMusicList(ArrayList<Music> musicList) {
+        this.musicList = musicList;
+    }
+
+    /**
+     * 通过索引播放
+     * @param index
+     */
+    public void playIndex(int index) {
+        if (index < 0 || index >= musicList.size())
+            return;
+        mIndex = index;
+        mMusic = musicList.get(mIndex);
+        play();
+    }
+
+    /**
+     * 下一曲
+     */
+    public void playNext() {
+        mIndex++;
+        if (mIndex >= musicList.size()) {
+            mIndex = 0;
+        }
+        mMusic = musicList.get(mIndex);
+        play();
+    }
+
+    /**
+     * 上一曲
+     */
+    public void playPrevious() {
+        mIndex--;
+        if (mIndex < 0)
+            mIndex = musicList.size() - 1;
+        mMusic = musicList.get(mIndex);
+        play();
+    }
+
+    /**
+     * 随机播放
+     */
+    public void playRandom(){
+        mIndex=mRandom.nextInt(musicList.size()-1);
+        mMusic=musicList.get(mIndex);
+        play();
+    }
+
     private boolean setDataSource() {
         if (mMusic == null)
-            throw new NullPointerException("music file cannot be "+mMusic);
+            throw new NullPointerException("music file cannot be " + mMusic);
         try {
             mMusic.setPlaying(true);
             mPlayer.setDataSource(mMusic.getFilePath());
@@ -127,7 +196,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mPlayer.release();
         mPlayer = null;
         mMusic.setPlaying(false);
-        mMusic=null;
+        mMusic = null;
         musicList.clear();
     }
 

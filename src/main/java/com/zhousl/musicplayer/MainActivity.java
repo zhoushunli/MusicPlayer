@@ -123,44 +123,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
-    public void onPlayStart(int index, Music music) {
-        refreshControllerStatus(music);
-    }
-
     @Override
     public void onClick(View v) {
-        if (getMusic() == null)
-            return;
-        if (v == mLast) {
-            getBinder().stop(getMusic());
-            mLocalFrag.getMusic().setPlaying(false);
-            mLocalFrag.doPlayMusic(getCurIndex() - 1);
-            mLocalFrag.notifyPlayingChanged();
-        } else if (v == mNext) {
-            getBinder().stop(getMusic());
-            mLocalFrag.getMusic().setPlaying(false);
-            mLocalFrag.doPlayMusic(getCurIndex() + 1);
-            mLocalFrag.notifyPlayingChanged();
-        } else if (v == mPlay) {
-            if (getMusic().isPlaying()) {
-                getBinder().pause(getMusic());
-                mPlay.setSelected(false);
-            } else {
-                if (getMusic().getCurPosition() == 0) {
-                    mLocalFrag.doPlayMusic(getCurIndex());
-                } else {
-                    getBinder().resume(getMusic());
-                }
-                mPlay.setSelected(true);
-                mLocalFrag.getMusic().setPlaying(true);
-                mLocalFrag.notifyPlayingChanged();
-            }
-        }
+
     }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        Log.i("onpages--", positionOffset + "");
         if (positionOffset == 0)
             return;
         localTab.setScaleX((SCALE_FACTOR - 1) * (1 - positionOffset) + 1);
@@ -190,22 +159,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         sa.setDuration(DEFAULT_ANIMATE_DURATION);
         sa.setFillAfter(false);
         target.startAnimation(sa);
-    }
-
-    public Music getMusic() {
-        return mBinder.getMusic();
-    }
-
-    public int getCurIndex() {
-        return mBinder.getIndex();
-    }
-
-    public PlayService.MyBinder getBinder() {
-        return mBinder;
-    }
-
-    public Intent getService() {
-        return mService;
     }
 
     class MyConn implements ServiceConnection {

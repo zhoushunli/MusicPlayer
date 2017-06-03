@@ -57,4 +57,7 @@ public class MusicHelper {
         }
         return musicList;
     }
+    public ArrayList<Music> scanMusic(){
+        return null;
+    }
 }
