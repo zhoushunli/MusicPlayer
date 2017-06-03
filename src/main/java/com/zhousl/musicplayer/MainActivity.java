@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.ScaleAnimation;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zhousl.musicplayer.adapter.HomePageAdapter;
 import com.zhousl.musicplayer.constants.Action;

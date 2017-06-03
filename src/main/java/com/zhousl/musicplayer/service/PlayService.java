@@ -1,6 +1,7 @@
 package com.zhousl.musicplayer.service;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -56,16 +57,21 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     }
 
     private void launchRemoteView() {
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mRemoteView = new RemoteViews(getPackageName(), R.layout.remote_view);
         Notification notification = new Notification();
         notification.icon = R.mipmap.m_album_black;
         notification.contentView = mRemoteView;
-        startForeground(REMOTE_VIEW_ID, notification);
+        notification.flags=Notification.FLAG_ONGOING_EVENT;
+        manager.notify(0,notification);
+//        startForeground(REMOTE_VIEW_ID, notification);
     }
 
     private void initPendingIntent() {
         //播放和暂停的广播
-        PendingIntent pauseIntent = PendingIntent.getBroadcast(this, 0, new Intent(Action.REMOTE_PLAY), PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent intent = new Intent(Action.REMOTE_PLAY);
+        intent.putExtra("something","something");
+        PendingIntent pauseIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         mRemoteView.setOnClickPendingIntent(R.id.play, pauseIntent);
         //下一首
         PendingIntent nextIntent = PendingIntent.getBroadcast(this, 1, new Intent(Action.REMOTE_NEXT), PendingIntent.FLAG_CANCEL_CURRENT);
@@ -160,7 +166,7 @@ public class PlayService extends Service implements Player.OnCompleteListener {
             ((MusicPlayer) mPlayer).release();
             mPlayer = null;
         }
-        stopForeground(true);
+//        stopForeground(true);
         if (mReceiver!=null)
             unregisterReceiver(mReceiver);
     }

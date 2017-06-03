@@ -8,30 +8,58 @@ import com.zhousl.musicplayer.Music;
 
 public interface Player {
     //开始从头播放一首音乐
-    void play(Music music);
+    void play();
 
     //暂停音乐
-    void pause(Music music);
+    void pause();
 
     //停止播放音乐
-    void stop(Music music);
+    void stop();
 
     //暂停后恢复播放，从原来的位置接着播放
-    void resume(Music music);
+    void resume();
 
     //从某个位置开始播放音乐
     void seekTo(long curPos);
 
+    /**
+     * 判断是否正在播放
+     * @return
+     */
     boolean isPlaying();
 
-    //    boolean isLooping();
+    /**
+     * 返回当前播放模式，为{@link State.STATE_LOOP_ONE,State.STATE_LOOP_ALL,State.STATE_LOOP_NONE,State.STATE_LOOP_ORDER,State.STATE_LOOP_SHUFFLE}
+     * 之一
+     * @return
+     */
+    State getLoopState();
+
+    //设置播放模式
+    void setLoopState(State state);
+
+    public enum State{
+        //单曲循环
+        STATE_LOOP_ONE,
+        //全部循环
+        STATE_LOOP_ALL,
+        //播完当前就暂停，不循环
+        STATE_LOOP_NONE,
+        //顺序播放，播完全部就停止，不继续
+        STATE_LOOP_ORDER,
+        //随机播放
+        STATE_LOOP_SHUFFLE
+    }
+
     interface OnCompleteListener {
         void onCompletion();
     }
-    interface OnErrorListener{
+
+    interface OnErrorListener {
         boolean onError();
     }
-    interface OnSeekCompleteListener{
+
+    interface OnSeekCompleteListener {
         void onSeekComplete();
     }
 }

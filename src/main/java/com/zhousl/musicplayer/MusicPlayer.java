@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import com.zhousl.musicplayer.interf.Player;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by shunli on 2017/4/27.
@@ -14,14 +15,21 @@ import java.io.IOException;
 public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
 
-    private final MediaPlayer mPlayer;
+    //用于播放的播放器
+    private MediaPlayer mPlayer;
     private OnErrorListener onErrorListener;
     private OnSeekCompleteListener onSeekCompleteListener;
     private OnCompleteListener onCompleteListener;
+    //当前播放的音乐
     private Music mMusic;
+    //默认播放状态为全部循环
+    private State mState=State.STATE_LOOP_ALL;
+    //内部维护的播放列队
+    private ArrayList<Music> musicList;
 
     public MusicPlayer() {
         mPlayer = new MediaPlayer();
+        musicList = new ArrayList<>();
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnSeekCompleteListener(this);
         mPlayer.setOnErrorListener(this);
@@ -31,44 +39,62 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         return mMusic;
     }
 
+    public void setMusic(Music mMusic) {
+        this.mMusic = mMusic;
+    }
+
     @Override
-    public void play(Music music) {
-        if (music == null)
-            return;
-        if (mPlayer.isPlaying())
-            stop(mMusic);
-        try {
-            music.setPlaying(true);
-            mPlayer.setDataSource(music.getFilePath());
-            mPlayer.prepare();
-            mPlayer.start();
-            mMusic=music;
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void play() {
+        if (setDataSource()) {
+            try {
+                mPlayer.prepare();
+                mPlayer.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+                release();
+            }
         }
     }
 
-    @Override
-    public void pause(Music music) {
-        mPlayer.pause();
-        music.setPlaying(false);
-        music.setCurPosition(mPlayer.getCurrentPosition());
+    private boolean setDataSource() {
+        if (mMusic == null)
+            throw new NullPointerException("music file cannot be "+mMusic);
+        try {
+            mMusic.setPlaying(true);
+            mPlayer.setDataSource(mMusic.getFilePath());
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            release();
+        }
+        return false;
     }
 
     @Override
-    public void stop(Music music) {
-        music.setPlaying(false);
-        music.setCurPosition(0);
+    public void pause() {
+        mPlayer.pause();
+        mMusic.setPlaying(false);
+        mMusic.setCurPosition(mPlayer.getCurrentPosition());
+    }
+
+    @Override
+    public void stop() {
+        mMusic.setPlaying(false);
+        mMusic.setCurPosition(0);
+        reset();
+    }
+
+    private void reset() {
         mPlayer.stop();
         mPlayer.reset();
     }
 
     @Override
-    public void resume(Music music) {
-        if (music == null)
+    public void resume() {
+        if (mMusic == null)
             return;
-        music.setPlaying(true);
-        long curPosition = music.getCurPosition();
+        mMusic.setPlaying(true);
+        long curPosition = mMusic.getCurPosition();
         if (curPosition > 0) {
             mPlayer.seekTo((int) curPosition);
             mPlayer.start();
@@ -86,8 +112,23 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         return mPlayer.isPlaying();
     }
 
+    @Override
+    public State getLoopState() {
+        return mState;
+    }
+
+    @Override
+    public void setLoopState(State state) {
+        mState = state;
+    }
+
     public void release() {
+        mPlayer.reset();
         mPlayer.release();
+        mPlayer = null;
+        mMusic.setPlaying(false);
+        mMusic=null;
+        musicList.clear();
     }
 
     public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
@@ -106,7 +147,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     public void onCompletion(MediaPlayer mp) {
         mp.reset();
         mMusic.setPlaying(false);
-        if (this.onCompleteListener!=null)
+        if (this.onCompleteListener != null)
             this.onCompleteListener.onCompletion();
     }
 
