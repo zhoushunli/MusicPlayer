@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -57,7 +58,12 @@ public class MusicHelper {
         }
         return musicList;
     }
+    //用来扫描所有文件夹
     public ArrayList<Music> scanMusic(){
+        return null;
+    }
+    //用来扫描指定文件夹下音乐文件
+    public ArrayList<Music> scanMusic(File rootDir){
         return null;
     }
 }

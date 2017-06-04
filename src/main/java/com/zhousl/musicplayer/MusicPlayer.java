@@ -41,7 +41,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnSeekCompleteListener(this);
         mPlayer.setOnErrorListener(this);
-        mRandom=new Random();
+        mRandom = new Random();
     }
 
     public Music getMusic() {
@@ -67,6 +67,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     /**
      * 获取内部播放列队
+     *
      * @return
      */
     public ArrayList<Music> getMusicList() {
@@ -75,6 +76,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     /**
      * 设置内部播放列队
+     *
      * @param musicList
      */
     public void setMusicList(ArrayList<Music> musicList) {
@@ -83,6 +85,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     /**
      * 通过索引播放
+     *
      * @param index
      */
     public void playIndex(int index) {
@@ -119,9 +122,9 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     /**
      * 随机播放
      */
-    public void playRandom(){
-        mIndex=mRandom.nextInt(musicList.size()-1);
-        mMusic=musicList.get(mIndex);
+    public void playRandom() {
+        mIndex = mRandom.nextInt(musicList.size() - 1);
+        mMusic = musicList.get(mIndex);
         play();
     }
 
@@ -129,7 +132,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         if (mMusic == null)
             throw new NullPointerException("music file cannot be " + mMusic);
         try {
-            mMusic.setPlaying(true);
+            mMusic.setState(Music.MusicState.STATE_PLAYING);
             mPlayer.setDataSource(mMusic.getFilePath());
             return true;
         } catch (IOException e) {
@@ -142,13 +145,13 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     @Override
     public void pause() {
         mPlayer.pause();
-        mMusic.setPlaying(false);
+        mMusic.setState(Music.MusicState.STATE_PAUSE);
         mMusic.setCurPosition(mPlayer.getCurrentPosition());
     }
 
     @Override
     public void stop() {
-        mMusic.setPlaying(false);
+        mMusic.setState(Music.MusicState.STATE_IDLE);
         mMusic.setCurPosition(0);
         reset();
     }
@@ -156,13 +159,15 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     private void reset() {
         mPlayer.stop();
         mPlayer.reset();
+        mMusic.setState(Music.MusicState.STATE_IDLE);
+        mMusic = null;
     }
 
     @Override
     public void resume() {
         if (mMusic == null)
             return;
-        mMusic.setPlaying(true);
+        mMusic.setState(Music.MusicState.STATE_PLAYING);
         long curPosition = mMusic.getCurPosition();
         if (curPosition > 0) {
             mPlayer.seekTo((int) curPosition);
@@ -172,8 +177,13 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     @Override
     public void seekTo(long curPos) {
+        seekToWithoutPlay(curPos);
         mPlayer.seekTo((int) curPos);
         mPlayer.start();
+    }
+
+    public void seekToWithoutPlay(long curPos) {
+        mMusic.setCurPosition(curPos);
     }
 
     @Override
@@ -195,7 +205,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mPlayer.reset();
         mPlayer.release();
         mPlayer = null;
-        mMusic.setPlaying(false);
+        mMusic.setState(Music.MusicState.STATE_PLAYING);
         mMusic = null;
         musicList.clear();
     }
@@ -214,8 +224,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        mp.reset();
-        mMusic.setPlaying(false);
+        reset();
         if (this.onCompleteListener != null)
             this.onCompleteListener.onCompletion();
     }
@@ -229,10 +238,10 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        mp.reset();
         if (this.onErrorListener != null) {
             return onErrorListener.onError();
         }
+        release();
         return true;
     }
 }

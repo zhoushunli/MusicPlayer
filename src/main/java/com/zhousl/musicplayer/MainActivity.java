@@ -178,15 +178,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
+    public void setMusic(Music music) {
+        mBinder.setMusic(music);
+    }
+
+    public void setMusicList(ArrayList<Music> musicList) {
+        mBinder.setMusicList(musicList);
+    }
+
     public class PlayingChangeReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action != null && action.equals(Action.PLAY_NEXT)) {
-                mLocalFrag.notifyPlayingChanged();
-                int index = intent.getIntExtra(Action.IntentKey.INDEX, -1);
-                refreshControllerStatus(mLocalFrag.getMusicList().get(index));
+
             }
         }
     }
@@ -194,10 +200,5 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private void refreshControllerStatus(Music music) {
         mTitle.setText(music.getName());
         mArtist.setText(music.getArtist());
-        if (music.isPlaying()) {
-            mPlay.setSelected(true);
-        } else {
-            mPlay.setSelected(false);
-        }
     }
 }

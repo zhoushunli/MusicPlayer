@@ -3,11 +3,14 @@ package com.zhousl.musicplayer;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.File;
+import java.util.ArrayList;
+
 /**
  * Created by shunli on 2017/4/28.
  */
 
-public class Music implements Parcelable{
+public class Music implements Parcelable {
 
     private String name;//名称
     private String artist;//艺术家
@@ -18,7 +21,10 @@ public class Music implements Parcelable{
     private String filePath;//文件路径
     private String suffix;
     private String album;
-    private boolean isPlaying;
+    private MusicState state=MusicState.STATE_IDLE;
+
+    public Music() {
+    }
 
     protected Music(Parcel in) {
         name = in.readString();
@@ -30,9 +36,7 @@ public class Music implements Parcelable{
         filePath = in.readString();
         suffix = in.readString();
         album = in.readString();
-        isPlaying = in.readByte() != 0;
     }
-    public Music(){}
 
     public static final Creator<Music> CREATOR = new Creator<Music>() {
         @Override
@@ -110,20 +114,20 @@ public class Music implements Parcelable{
         this.album = album;
     }
 
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
-    public void setPlaying(boolean playing) {
-        isPlaying = playing;
-    }
-
     public long getCurPosition() {
         return curPosition;
     }
 
     public void setCurPosition(long curPosition) {
         this.curPosition = curPosition;
+    }
+
+    public void setState(MusicState state) {
+        this.state = state;
+    }
+
+    public MusicState getState() {
+        return state;
     }
 
     @Override
@@ -142,12 +146,37 @@ public class Music implements Parcelable{
         dest.writeString(filePath);
         dest.writeString(suffix);
         dest.writeString(album);
-        dest.writeByte((byte) (isPlaying ? 1 : 0));
     }
 
-    public enum State{
+    public enum MusicState {
         STATE_PAUSE,//暂停
         STATE_PLAYING,//播放
         STATE_IDLE//闲置
+    }
+
+    /**
+     * 用于检测是否为音乐文件的类
+     */
+    public static class Suffix {
+
+        private static String[] suffixArr = {".mp3", ".flac", ".ogg"};
+
+        public static boolean isMusicFile(File file) {
+            if (file == null || !file.exists())
+                return false;
+            return checkFile(file);
+        }
+
+        private static boolean checkFile(File file) {
+            if (file.getAbsolutePath().contains(".")) {
+                String suffix = file.getAbsolutePath().substring(file.getAbsolutePath().indexOf("."));
+                for (String s : suffixArr) {
+                    if (s.equalsIgnoreCase(suffix)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -54,19 +55,18 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     }
 
     private void launchRemoteView() {
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mRemoteView = new RemoteViews(getPackageName(), R.layout.remote_view);
         Notification notification = new Notification();
         notification.icon = R.mipmap.m_album_black;
         notification.contentView = mRemoteView;
-        notification.flags=Notification.FLAG_ONGOING_EVENT;
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
         startForeground(REMOTE_VIEW_ID, notification);
     }
 
     private void initPendingIntent() {
         //播放和暂停的广播
         Intent intent = new Intent(Action.REMOTE_PLAY);
-        intent.putExtra("something","something");
+        intent.putExtra("something", "something");
         PendingIntent pauseIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         mRemoteView.setOnClickPendingIntent(R.id.play, pauseIntent);
         //下一首
@@ -83,16 +83,40 @@ public class PlayService extends Service implements Player.OnCompleteListener {
         return new MyBinder();
     }
 
+    public void setMusic(Music music) {
+        mPlayer.setMusic(music);
+    }
+
+    public void setMusicList(ArrayList<Music> musicList) {
+        mPlayer.setMusicList(musicList);
+    }
+
     public void play() {
+        mPlayer.play();
+    }
+
+    public void playNext() {
+        mPlayer.playNext();
+    }
+
+    public void playPrevious() {
+        mPlayer.playPrevious();
+    }
+
+    public void playIndex(int index) {
+        mPlayer.playIndex(index);
     }
 
     public void pause() {
+        mPlayer.pause();
     }
 
     public void resume() {
+        mPlayer.resume();
     }
 
     public void stop() {
+        mPlayer.stop();
     }
 
     /**
@@ -115,7 +139,7 @@ public class PlayService extends Service implements Player.OnCompleteListener {
             mPlayer = null;
         }
         stopForeground(true);
-        if (mReceiver!=null)
+        if (mReceiver != null)
             unregisterReceiver(mReceiver);
     }
 
@@ -130,22 +154,40 @@ public class PlayService extends Service implements Player.OnCompleteListener {
 
     public class MyBinder extends Binder {
 
+        public void setMusic(Music music) {
+            PlayService.this.setMusic(music);
+        }
+
         public void setMusicList(ArrayList<Music> musicList) {
+            PlayService.this.setMusicList(musicList);
         }
 
-        public void play(int index) {
+        public void play() {
+            PlayService.this.play();
         }
 
-        public void pause(Music music) {
+        public void playNext() {
+            PlayService.this.playNext();
         }
 
-        public void resume(Music music) {
+        public void playPrevious() {
+            PlayService.this.playNext();
         }
 
-        public void stop(Music music) {
+        public void playIndex(int index) {
+            PlayService.this.playIndex(index);
         }
-        public int getIndex() {
-            return 0;
+
+        public void pause() {
+            PlayService.this.pause();
+        }
+
+        public void resume() {
+            PlayService.this.resume();
+        }
+
+        public void stop() {
+            PlayService.this.stop();
         }
     }
 

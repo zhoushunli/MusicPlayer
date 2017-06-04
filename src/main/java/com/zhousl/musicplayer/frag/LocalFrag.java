@@ -29,8 +29,7 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
     private ListView mList;
     private LocalMusicAdapter mAdapter;
     private ArrayList<Music> musicList;
-    //当前正在播放的音乐
-    private Music mMusic;
+
     private MyTask mQueryTask;
 
     @Override
@@ -65,31 +64,14 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Music music = musicList.get(position);
-//        mMusic = getCurRealPlayingMusic();//获取当前播放对象
-        if (mMusic == null) {//完全没有播放过
-            doPlayMusic(position);
-        } else {//有播放过，但是状态可能是播放状态和暂停状态
-            if (music.getId() == mMusic.getId()) {
-                if (!mMusic.isPlaying()) {//点击的是当前正在pause的
-                    if (mMusic.getCurPosition() == 0) {
-                        doPlayMusic(position);
-                    } else {
-                        doResumeMusic(music);
-                    }
-                    refreshSelectedState(view);
-                } else {//点击的是当前正在play的
-                    openPlayingPane(music);
-                }
-                return;
-            } else {
-                if (mMusic != null) {//清除上次播放状态
-                    mMusic.setPlaying(false);
-                }
-                doPlayMusic(position);
-            }
+        if (music.getState()== Music.MusicState.STATE_IDLE){//闲置状态，直接播放
+
+        }else if (music.getState()== Music.MusicState.STATE_PAUSE){//暂停状态
+
+        }else {//播放状态
+
         }
         refreshSelectedState(view);
-        mMusic = music;
     }
 
     private void refreshSelectedState(View view) {
@@ -107,20 +89,10 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
     }
 
     public void doPlayMusic(int index) {
-        if (index < 0) {
-            index = 0;
-        }
-        if (index > musicList.size() - 1) {
-            index = musicList.size() - 1;
-        }
-        mMusic = musicList.get(index);
-//        ((MainActivity) getActivity()).getBinder().play(index);
-//        ((MainActivity) getActivity()).onPlayStart(index, musicList.get(index));
+
     }
 
     public void doResumeMusic(Music music) {
-//        ((MainActivity) getActivity()).getBinder().resume(music);
-//        ((MainActivity) getActivity()).onPlayStart(musicList.indexOf(music), music);
     }
 
     /**
@@ -138,24 +110,12 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
         mList.setSelection(selectedItemPosition);
     }
 
-    public ArrayList<Music> getMusicList() {
-        return musicList;
-    }
-
-    public Music getMusic() {//返回当前记录的music（新列表里面对应于实际播放对象的music）
-        return mMusic;
-    }
-
-//    public Music getCurRealPlayingMusic() {
-//        return ((MainActivity) getActivity()).getMusic();
-//    }
-
     class MyTask extends AsyncTask<Void, File, Integer> {
 
         @Override
         protected Integer doInBackground(Void... params) {
             ArrayList<Music> list = MusicHelper.getInstance().getMusic(getActivity());
-            if (list != null) {
+            if (list != null&&list.size()>0) {
                 musicList.addAll(list);
                 return 1;
             }
@@ -165,36 +125,13 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
         @Override
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
-            if (integer == 1) {
-                FragmentActivity activity = getActivity();
-                if (activity != null && activity instanceof MainActivity) {
-                    MainActivity act = (MainActivity) activity;
-//                    mMusic = act.getMusic();
-//                    act.getBinder().setMusicList(musicList);
-                    if (mMusic == null)
-                        mMusic = musicList.get(0);
-                    checkForPlaying();//mMusic不为null，可能存在两种状态，即播放状态和暂停状态，需要判断
-                }
+            if (integer == 1) {//数据拿到，设置给player的队列
+                ((MainActivity) getActivity()).setMusicList(musicList);
+            }else {
+                //TODO 没有拿到数据或者数据为空，这里应当显示空数据页面
             }
+            //通知刷新
             mAdapter.notifyDataSetChanged();
-        }
-
-        private void checkForPlaying() {
-            for (Music music : musicList) {
-                if (music.getId() == mMusic.getId()) {
-                    if (mMusic.isPlaying()) {
-                        //处于播放状态
-                        music.setPlaying(true);
-                    } else {
-                        //处于暂停状态
-                        music.setPlaying(false);
-                    }
-                    music.setCurPosition(mMusic.getCurPosition());
-                    mMusic = music;
-//                    ((MainActivity) getActivity()).onPlayStart(musicList.indexOf(mMusic), mMusic);
-                    return;
-                }
-            }
         }
     }
 
