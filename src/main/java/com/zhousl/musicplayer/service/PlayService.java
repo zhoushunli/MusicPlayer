@@ -12,6 +12,7 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import com.zhousl.musicplayer.MusicPlayer;
 import com.zhousl.musicplayer.R;
 import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.interf.Player;
+import com.zhousl.musicplayer.receiver.PlayingChangeReceiver;
 
 import java.util.ArrayList;
 
@@ -32,7 +34,8 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     private MusicPlayer mPlayer;
     public static final int REMOTE_VIEW_ID = 0x111;
     private RemoteViews mRemoteView;
-    private PlayReceiver mReceiver;
+//    private PlayReceiver mReceiver;
+    private PlayingChangeReceiver mReceiver;
 
     @Override
     public void onCreate() {
@@ -46,7 +49,8 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     }
 
     private void initReceiver() {
-        mReceiver = new PlayReceiver();
+//        mReceiver = new PlayReceiver();\
+        mReceiver=new PlayingChangeReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Action.REMOTE_PLAY);
         filter.addAction(Action.REMOTE_NEXT);
@@ -118,6 +122,9 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     public void stop() {
         mPlayer.stop();
     }
+    public Music getMusic(){
+        return mPlayer.getMusic();
+    }
 
     /**
      * 刷新远程view的正确状态
@@ -145,11 +152,14 @@ public class PlayService extends Service implements Player.OnCompleteListener {
 
     @Override
     public void onCompletion() {
-
+        playNext();
+        notifyPlayingIndexChanged();
     }
 
     private void notifyPlayingIndexChanged() {
-
+        Intent intent = new Intent();
+        intent.setAction(Action.PLAY_NEXT);
+        sendBroadcast(intent);
     }
 
     public class MyBinder extends Binder {
@@ -171,7 +181,7 @@ public class PlayService extends Service implements Player.OnCompleteListener {
         }
 
         public void playPrevious() {
-            PlayService.this.playNext();
+            PlayService.this.playPrevious();
         }
 
         public void playIndex(int index) {
@@ -189,12 +199,16 @@ public class PlayService extends Service implements Player.OnCompleteListener {
         public void stop() {
             PlayService.this.stop();
         }
+        public Music getMusic(){
+            return PlayService.this.getMusic();
+        }
     }
 
     class PlayReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.i("res--","---------------");
         }
     }
 }

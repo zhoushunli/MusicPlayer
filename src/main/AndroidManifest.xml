@@ -23,6 +23,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.PlayingActivity"/>
+        <receiver android:name=".receiver.PlayingChangeReceiver">
+            <intent-filter>
+                <action android:name="remote_play"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

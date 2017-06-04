@@ -49,6 +49,8 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     }
 
     public void setMusic(Music mMusic) {
+        mIndex = getIndexInternal();
+        musicReset();
         this.mMusic = mMusic;
     }
 
@@ -92,8 +94,19 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         if (index < 0 || index >= musicList.size())
             return;
         mIndex = index;
+        musicReset();
         mMusic = musicList.get(mIndex);
         play();
+    }
+
+    private int getIndexInternal() {
+        if (musicList.size() == 0 || mMusic == null)
+            return mIndex;
+        for (Music music : musicList) {
+            if (mMusic.getId() == music.getId())
+                return musicList.indexOf(music);
+        }
+        return mIndex;
     }
 
     /**
@@ -104,6 +117,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         if (mIndex >= musicList.size()) {
             mIndex = 0;
         }
+        musicReset();
         mMusic = musicList.get(mIndex);
         play();
     }
@@ -115,6 +129,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mIndex--;
         if (mIndex < 0)
             mIndex = musicList.size() - 1;
+        musicReset();
         mMusic = musicList.get(mIndex);
         play();
     }
@@ -124,6 +139,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
      */
     public void playRandom() {
         mIndex = mRandom.nextInt(musicList.size() - 1);
+        musicReset();
         mMusic = musicList.get(mIndex);
         play();
     }
@@ -131,6 +147,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     private boolean setDataSource() {
         if (mMusic == null)
             throw new NullPointerException("music file cannot be " + mMusic);
+        mPlayer.reset();
         try {
             mMusic.setState(Music.MusicState.STATE_PLAYING);
             mPlayer.setDataSource(mMusic.getFilePath());
@@ -159,6 +176,12 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     private void reset() {
         mPlayer.stop();
         mPlayer.reset();
+        musicReset();
+    }
+
+    private void musicReset() {
+        if (mMusic == null)
+            return;
         mMusic.setState(Music.MusicState.STATE_IDLE);
         mMusic = null;
     }
@@ -169,10 +192,11 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
             return;
         mMusic.setState(Music.MusicState.STATE_PLAYING);
         long curPosition = mMusic.getCurPosition();
-        if (curPosition > 0) {
-            mPlayer.seekTo((int) curPosition);
-            mPlayer.start();
+        if (curPosition < 0) {
+            curPosition=0;
         }
+        mPlayer.seekTo((int) curPosition);
+        mPlayer.start();
     }
 
     @Override

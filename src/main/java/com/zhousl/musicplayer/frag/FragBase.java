@@ -29,6 +29,10 @@ public abstract class FragBase extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         findView(view);
     }
+
+    protected boolean isAlive(){
+        return getActivity()!=null&&isAdded()&&!isRemoving();
+    }
     protected abstract int getRes();
     protected abstract void findView(View rootView);
 }

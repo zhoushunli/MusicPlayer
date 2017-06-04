@@ -125,7 +125,31 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void onClick(View v) {
+        if (v == mLast) {
+            doPlayPrevious();
+        } else if (v == mNext) {
+            doPlayNext();
+        } else if (v == mPlay) {
+            doPlayOrPause();
+        }
+        mLocalFrag.notifyPlayingChanged();
+    }
 
+    private void doPlayOrPause() {
+        Music music = mBinder.getMusic();
+        if (music == null) {
+            doPlayNew(0);
+            return;
+        }
+        if (music.getState() == Music.MusicState.STATE_PAUSE) {
+            doMusicResume();
+        } else if (music.getState() == Music.MusicState.STATE_PLAYING) {
+            doMusicPause();
+        }
+    }
+
+    public Music getMusic() {
+        return mBinder.getMusic();
     }
 
     @Override
@@ -186,19 +210,60 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mBinder.setMusicList(musicList);
     }
 
+    public void doPlayNew(int index) {
+        mBinder.playIndex(index);
+        refreshControllerStatus(mBinder.getMusic());
+    }
+
+    public void doPlayNext() {
+        mBinder.playNext();
+        refreshControllerStatus(mBinder.getMusic());
+    }
+
+    public void doPlayPrevious() {
+        mBinder.playPrevious();
+        refreshControllerStatus(mBinder.getMusic());
+    }
+
+    public void doMusicPause() {
+        mBinder.pause();
+        refreshControllerStatus(mBinder.getMusic());
+    }
+
+    public void doMusicResume() {
+        mBinder.resume();
+        refreshControllerStatus(mBinder.getMusic());
+    }
+
+    @Override
+    public void onBackPressed() {
+        leapToLauncher();
+    }
+
+    private void leapToLauncher() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(intent);
+    }
+
     public class PlayingChangeReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action != null && action.equals(Action.PLAY_NEXT)) {
-
+                refreshControllerStatus(getMusic());
+                mLocalFrag.notifyPlayingChanged();
             }
         }
     }
 
-    private void refreshControllerStatus(Music music) {
+    public void refreshControllerStatus(Music music) {
+        if (music == null)
+            return;
         mTitle.setText(music.getName());
         mArtist.setText(music.getArtist());
+        mPlay.setSelected(music.getState() == Music.MusicState.STATE_PLAYING);
     }
 }

@@ -64,14 +64,29 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Music music = musicList.get(position);
-        if (music.getState()== Music.MusicState.STATE_IDLE){//闲置状态，直接播放
-
-        }else if (music.getState()== Music.MusicState.STATE_PAUSE){//暂停状态
-
-        }else {//播放状态
-
+        if (music.getState() == Music.MusicState.STATE_IDLE) {//闲置状态，直接播放
+            doPlayNew(position);
+        } else if (music.getState() == Music.MusicState.STATE_PAUSE) {//暂停状态
+            doResume();
+        } else {//处于正在播放状态
+            openPlayingPane();
         }
         refreshSelectedState(view);
+    }
+
+    public void doResume() {
+        ((MainActivity) getActivity()).doMusicResume();
+    }
+
+    /**
+     * 如果点击了正在播放的音乐，则打开播放界面
+     */
+    private void openPlayingPane() {
+        startActivity(new Intent(getActivity(), PlayingActivity.class));
+    }
+
+    private void doPlayNew(int position) {
+        ((MainActivity) getActivity()).doPlayNew(position);
     }
 
     private void refreshSelectedState(View view) {
@@ -88,22 +103,6 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
         }
     }
 
-    public void doPlayMusic(int index) {
-
-    }
-
-    public void doResumeMusic(Music music) {
-    }
-
-    /**
-     * 如果点击了正在播放的音乐，则打开播放界面
-     *
-     * @param music
-     */
-    private void openPlayingPane(Music music) {
-        startActivity(new Intent(getActivity(), PlayingActivity.class));
-    }
-
     public void notifyPlayingChanged() {
         int selectedItemPosition = mList.getSelectedItemPosition();
         mAdapter.notifyDataSetChanged();
@@ -115,7 +114,7 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
         @Override
         protected Integer doInBackground(Void... params) {
             ArrayList<Music> list = MusicHelper.getInstance().getMusic(getActivity());
-            if (list != null&&list.size()>0) {
+            if (list != null && list.size() > 0) {
                 musicList.addAll(list);
                 return 1;
             }
@@ -127,7 +126,9 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
             super.onPostExecute(integer);
             if (integer == 1) {//数据拿到，设置给player的队列
                 ((MainActivity) getActivity()).setMusicList(musicList);
-            }else {
+                restoreMusicState();
+                notifyActivityRefreshViewState();
+            } else {
                 //TODO 没有拿到数据或者数据为空，这里应当显示空数据页面
             }
             //通知刷新
@@ -135,6 +136,25 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
         }
     }
 
+    private void restoreMusicState() {
+        Music music = ((MainActivity) getActivity()).getMusic();
+        if (music==null)
+            return;
+        for (Music mc : musicList) {
+            if (mc.getId()==music.getId()){
+                mc.setState(music.getState());
+                ((MainActivity) getActivity()).setMusic(mc);
+                return;
+            }
+        }
+    }
+
+    private void notifyActivityRefreshViewState(){
+        if (!isAlive())
+            return;
+        MainActivity activity = (MainActivity) getActivity();
+        activity.refreshControllerStatus(activity.getMusic());
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();

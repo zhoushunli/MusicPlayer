@@ -15,6 +15,7 @@ public class PlayingChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Toast.makeText(context,"next",Toast.LENGTH_LONG).show();
         String action = intent.getAction();
         if (action!=null&&action.equals(Action.PLAY_NEXT)){
             Toast.makeText(context,"next",Toast.LENGTH_LONG).show();

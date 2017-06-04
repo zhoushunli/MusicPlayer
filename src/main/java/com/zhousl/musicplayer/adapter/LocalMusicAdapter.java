@@ -50,9 +50,11 @@ public class LocalMusicAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         Music music = musicList.get(position);
-        holder.title.setSelected(music.isPlaying());
+        holder.title.setSelected(music.getState()== Music.MusicState.STATE_PLAYING
+                ||music.getState()== Music.MusicState.STATE_PAUSE);
         holder.title.setText(music.getName());
-        holder.artist.setSelected(music.isPlaying());
+        holder.artist.setSelected(music.getState()== Music.MusicState.STATE_PLAYING
+                ||music.getState()== Music.MusicState.STATE_PAUSE);
         holder.artist.setText(music.getArtist());
         return convertView;
     }
