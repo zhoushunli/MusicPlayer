@@ -24,6 +24,7 @@ import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.frag.LocalFrag;
 import com.zhousl.musicplayer.frag.NetFrag;
 import com.zhousl.musicplayer.service.PlayService;
+import com.zhousl.musicplayer.util.Preferences;
 import com.zhousl.musicplayer.util.UIUtil;
 
 import java.net.URI;
@@ -115,6 +116,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mReceiver = new PlayingChangeReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Action.PLAY_NEXT);
+        filter.addAction(Action.REMOTE_STOP);
         registerReceiver(mReceiver, filter);
     }
 
@@ -172,7 +174,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             doMusicResume();
         } else if (music.getState() == Music.MusicState.STATE_PLAYING) {
             doMusicPause();
+        }else {
+            doPlayLatestStoppedMusic();
         }
+    }
+
+    private void doPlayLatestStoppedMusic() {
+        mBinder.play();
+        refreshControllerStatus(getMusic());
     }
 
     public Music getMusic() {
@@ -279,16 +288,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action != null && action.equals(Action.PLAY_NEXT)) {
+            if (action==null)
+                return;
+            if (action.equals(Action.PLAY_NEXT)) {
                 refreshControllerStatus(getMusic());
                 mLocalFrag.notifyPlayingChanged();
+            }else if (action.equals(Action.REMOTE_STOP)){
+                mLocalFrag.notifyStop();
             }
         }
     }
 
     public void refreshControllerStatus(Music music) {
-        if (music == null)
+        if (music == null){
             return;
+        }
         mTitle.setText(music.getName());
         mArtist.setText(music.getArtist());
         mPlay.setSelected(music.getState() == Music.MusicState.STATE_PLAYING);

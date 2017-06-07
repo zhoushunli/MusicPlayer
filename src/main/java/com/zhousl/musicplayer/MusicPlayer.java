@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 
 import com.zhousl.musicplayer.interf.Player;
+import com.zhousl.musicplayer.util.Preferences;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     private int mIndex;
     //用于获得随机索引值
     private Random mRandom;
+    public static final String LAST_PLAYED_SONG="last_played_song";
 
     public MusicPlayer() {
         mPlayer = new MediaPlayer();
@@ -168,8 +170,9 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     @Override
     public void stop() {
-        mMusic.setState(Music.MusicState.STATE_IDLE);
-        mMusic.setCurPosition(0);
+        if (mMusic==null)
+            return;
+        Preferences.putLong(LAST_PLAYED_SONG,mMusic.getId());
         reset();
     }
 
@@ -183,7 +186,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         if (mMusic == null)
             return;
         mMusic.setState(Music.MusicState.STATE_IDLE);
-        mMusic = null;
+        mMusic.setCurPosition(0);
     }
 
     @Override

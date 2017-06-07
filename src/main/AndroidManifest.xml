@@ -11,6 +11,7 @@
         android:icon="@mipmap/m_album_black"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:name=".MyApplication"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
         </activity>
@@ -22,13 +23,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.PlayingActivity"/>
+        <activity android:name=".view.PlayingActivity" android:launchMode="singleTask"/>
         <activity android:name=".EqualizerActivity"/>
-        <receiver android:name=".receiver.PlayingChangeReceiver">
-            <intent-filter>
-                <action android:name="remote_play"/>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

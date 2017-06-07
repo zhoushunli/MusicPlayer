@@ -13,8 +13,10 @@ import android.widget.ListView;
 import com.zhousl.musicplayer.MainActivity;
 import com.zhousl.musicplayer.Music;
 import com.zhousl.musicplayer.MusicHelper;
+import com.zhousl.musicplayer.MusicPlayer;
 import com.zhousl.musicplayer.R;
 import com.zhousl.musicplayer.adapter.LocalMusicAdapter;
+import com.zhousl.musicplayer.util.Preferences;
 import com.zhousl.musicplayer.view.PlayingActivity;
 
 import java.io.File;
@@ -109,6 +111,18 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
         mList.setSelection(selectedItemPosition);
     }
 
+    public void notifyStop(){
+        mAdapter.notifyDataSetChanged();
+        long id = Preferences.getLong(MusicPlayer.LAST_PLAYED_SONG, -1);
+        for (Music music : musicList) {
+            if (music.getId()==id){
+                ((MainActivity) getActivity()).refreshControllerStatus(music);
+//                ((MainActivity) getActivity()).setMusic(music);
+                return;
+            }
+        }
+    }
+
     class MyTask extends AsyncTask<Void, File, Integer> {
 
         @Override
@@ -138,8 +152,20 @@ public class LocalFrag extends FragBase implements AdapterView.OnItemClickListen
 
     private void restoreMusicState() {
         Music music = ((MainActivity) getActivity()).getMusic();
-        if (music==null)
-            return;
+        if (music==null){//说明没有正在播放的音乐，也没有pause状态的音乐,那就去取最后一次播放的音乐
+            long id = Preferences.getLong(MusicPlayer.LAST_PLAYED_SONG, -1);
+            if (id<0)//没取到最后一次播放的音乐，不用再继续
+                return;
+            for (Music mc : musicList) {
+                if (mc.getId()==id){
+                    mc.setState(Music.MusicState.STATE_IDLE);
+                    ((MainActivity) getActivity()).setMusic(mc);
+                    ((MainActivity) getActivity()).refreshControllerStatus(music);
+                    return;
+                }
+            }
+            return;//上面步骤走完都没有拿到文件，结束
+        }
         for (Music mc : musicList) {
             if (mc.getId()==music.getId()){
                 mc.setState(music.getState());
