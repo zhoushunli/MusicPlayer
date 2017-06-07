@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.PlayingActivity"/>
+        <activity android:name=".EqualizerActivity"/>
         <receiver android:name=".receiver.PlayingChangeReceiver">
             <intent-filter>
                 <action android:name="remote_play"/>

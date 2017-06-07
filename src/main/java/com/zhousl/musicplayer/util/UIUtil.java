@@ -17,7 +17,7 @@ public class UIUtil {
      * @return
      */
     public static Pair<Integer, Integer> getScreenDimen(Context context) {
-        return null;
+        return new Pair<>(context.getResources().getDisplayMetrics().widthPixels,context.getResources().getDisplayMetrics().heightPixels);
     }
 
     /**

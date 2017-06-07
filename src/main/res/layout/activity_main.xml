@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context="com.zhousl.musicplayer.MainActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/themeColor1">
@@ -22,7 +22,16 @@
             style="@style/tab_text_style"
             android:layout_toRightOf="@id/local"
             android:text="曲库" />
-    </LinearLayout>
+        <ImageView
+            android:layout_alignParentRight="true"
+            android:layout_width="50dp"
+            android:alpha="0.7"
+            android:id="@+id/more"
+            android:layout_marginRight="10dp"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:src="@mipmap/more"/>
+    </RelativeLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager_content"

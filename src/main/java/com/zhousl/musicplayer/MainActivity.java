@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -13,6 +14,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.ScaleAnimation;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,7 +24,9 @@ import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.frag.LocalFrag;
 import com.zhousl.musicplayer.frag.NetFrag;
 import com.zhousl.musicplayer.service.PlayService;
+import com.zhousl.musicplayer.util.UIUtil;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
@@ -46,6 +51,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private TextView mTitle;
     private TextView mArtist;
     private View mController;
+    private View more;
+    private ImageView cover;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mTitle = (TextView) findViewById(R.id.music_title);
         mArtist = (TextView) findViewById(R.id.artist);
         mController = findViewById(R.id.controller);
+        cover = (ImageView) findViewById(R.id.music_cover);
+        more = findViewById(R.id.more);
+        more.setOnClickListener(this);
         mLast = findViewById(R.id.last);
         mNext = findViewById(R.id.next);
         mPlay = findViewById(R.id.play);
@@ -125,6 +135,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void onClick(View v) {
+        if (v==more){
+            showMore();
+            return;
+        }
         if (v == mLast) {
             doPlayPrevious();
         } else if (v == mNext) {
@@ -133,6 +147,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             doPlayOrPause();
         }
         mLocalFrag.notifyPlayingChanged();
+    }
+
+    private void showMore() {
+        PopupWindow moreWindow=new PopupWindow(this);
+        moreWindow.setWidth(UIUtil.getScreenDimen(this).first);
+        View rootView = View.inflate(this, R.layout.more_layout, null);
+        moreWindow.setContentView(rootView);
+        rootView.findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,EqualizerActivity.class));
+            }
+        });
     }
 
     private void doPlayOrPause() {
@@ -265,5 +292,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mTitle.setText(music.getName());
         mArtist.setText(music.getArtist());
         mPlay.setSelected(music.getState() == Music.MusicState.STATE_PLAYING);
+        if (music.getAlbum()!=null){
+            Log.i("album--",music.getAlbum());
+        }
     }
 }
