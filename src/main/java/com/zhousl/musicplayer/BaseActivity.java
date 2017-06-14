@@ -53,6 +53,10 @@ public abstract class BaseActivity extends AppCompatActivity {
             mStatusBarFillView.getLayoutParams().height = statusBarHeight;
             mStatusBarFillView.requestLayout();
         }
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP){
+            getWindow().setStatusBarColor(getResources().getColor(R.color.colorAccent));
+
+        }
     }
 
     protected void changeStatusColor(@ColorRes int color) {
