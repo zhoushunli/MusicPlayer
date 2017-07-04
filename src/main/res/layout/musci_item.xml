@@ -30,5 +30,6 @@
         android:layout_width="wrap_content"
         android:layout_height="0.5dp"
         android:layout_gravity="bottom"
+        android:alpha="0.2"
         android:background="@color/divider"/>
 </FrameLayout>
