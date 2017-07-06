@@ -3,7 +3,7 @@
     android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/play_bg_default">
+    android:background="@color/colorPrimary">
 
     <FrameLayout
         android:layout_width="match_parent"

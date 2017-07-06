@@ -16,6 +16,7 @@ import android.widget.RemoteViews;
 
 import com.zhousl.musicplayer.Music;
 import com.zhousl.musicplayer.MusicPlayer;
+import com.zhousl.musicplayer.R;
 import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.interf.Player;
 
