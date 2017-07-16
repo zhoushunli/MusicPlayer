@@ -18,7 +18,8 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
 
     //用于播放的播放器
-    private MediaPlayer mPlayer;
+    private static MediaPlayer mPlayer;
+    private static MusicPlayer mMusicPlayer = new MusicPlayer();
     //播放出错监听
     private OnErrorListener onErrorListener;
     //定点播放监听
@@ -35,9 +36,13 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     private int mIndex;
     //用于获得随机索引值
     private Random mRandom;
-    public static final String LAST_PLAYED_SONG="last_played_song";
+    public static final String LAST_PLAYED_SONG = "last_played_song";
 
-    public MusicPlayer() {
+    public static MusicPlayer getPlayer() {
+        return mMusicPlayer;
+    }
+
+    private MusicPlayer() {
         mPlayer = new MediaPlayer();
         musicList = new ArrayList<>();
         mPlayer.setOnCompletionListener(this);
@@ -170,9 +175,9 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
 
     @Override
     public void stop() {
-        if (mMusic==null)
+        if (mMusic == null)
             return;
-        Preferences.putLong(LAST_PLAYED_SONG,mMusic.getId());
+        Preferences.putLong(LAST_PLAYED_SONG, mMusic.getId());
         reset();
     }
 
@@ -196,7 +201,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mMusic.setState(Music.MusicState.STATE_PLAYING);
         long curPosition = mMusic.getCurPosition();
         if (curPosition < 0) {
-            curPosition=0;
+            curPosition = 0;
         }
         mPlayer.seekTo((int) curPosition);
         mPlayer.start();
@@ -232,7 +237,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mPlayer.reset();
         mPlayer.release();
         mPlayer = null;
-        mMusic.setState(Music.MusicState.STATE_PLAYING);
+        mMusic.setState(Music.MusicState.STATE_IDLE);
         mMusic = null;
         musicList.clear();
     }
