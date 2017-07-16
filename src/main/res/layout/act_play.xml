@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -17,13 +18,19 @@
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
+            app:title="我好像在哪儿见过你"
+            app:subtitle="薛之谦"
+            app:titleTextColor="#fff"
+            app:subtitleTextColor="#fff"
+            android:title="我好像在哪儿见过你"
+            android:subtitle="薛之谦"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"></android.support.v7.widget.Toolbar>
 
         <ImageView
             android:id="@+id/album"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_below="@id/toolbar"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
@@ -50,6 +57,75 @@
             android:text="我好在哪儿见过你"
             android:textColor="@color/white"
             android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/play_control"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lrc"
+            android:layout_marginTop="30dp"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatImageView
+                style="@style/controller_bt_style"
+                android:padding="2dp"
+                android:id="@+id/play_state"
+                android:src="@mipmap/shuffle" />
+
+            <android.support.v7.widget.AppCompatImageView
+                style="@style/controller_bt_style"
+                android:id="@+id/play_previous"
+                android:src="@mipmap/m_last" />
+
+            <android.support.v7.widget.AppCompatImageView
+                style="@style/controller_bt_style"
+                android:id="@+id/play_pause"
+                android:src="@mipmap/m_play" />
+
+            <android.support.v7.widget.AppCompatImageView
+                style="@style/controller_bt_style"
+                android:id="@+id/play_next"
+                android:src="@mipmap/m_next" />
+
+            <android.support.v7.widget.AppCompatImageView
+                style="@style/controller_bt_style"
+                android:id="@+id/play_list"
+                android:src="@mipmap/playlist" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/play_control"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="18dp"
+            android:layout_marginTop="28dp"
+            android:paddingRight="18dp">
+
+            <TextView
+                android:id="@+id/time_played"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textColor="#fff" />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/play_progress"
+                android:progressBackgroundTint="#ffffffff" />
+
+            <TextView
+                android:id="@+id/time_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5:30"
+                android:textColor="#fff" />
+        </LinearLayout>
 
     </RelativeLayout>
 

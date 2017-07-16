@@ -16,10 +16,16 @@
         <item name="android:textColor">@color/tab_color_selector</item>
     </style>
     <style name="controller_bt_style">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:layout_gravity">right|center_vertical</item>
+        <item name="android:background">@drawable/press_feedback</item>
+    </style>
+    <style name="controller_bt_style.mainpage">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:padding">8dp</item>
-        <item name="android:layout_gravity">right|center_vertical</item>
         <item name="android:background">@drawable/press_feedback</item>
     </style>
     <style name="remote_controller_bt_style" parent="controller_bt_style">

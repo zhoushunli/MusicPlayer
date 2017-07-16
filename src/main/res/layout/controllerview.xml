@@ -40,19 +40,19 @@
 
     <ImageView
         android:id="@+id/next"
-        style="@style/controller_bt_style"
+        style="@style/controller_bt_style.mainpage"
         android:layout_marginRight="16dp"
         android:src="@mipmap/m_next" />
 
     <ImageView
         android:id="@+id/play"
-        style="@style/controller_bt_style"
+        style="@style/controller_bt_style.mainpage"
         android:layout_marginRight="66dp"
         android:src="@drawable/play_pause_selector" />
 
     <ImageView
         android:id="@+id/last"
-        style="@style/controller_bt_style"
+        style="@style/controller_bt_style.mainpage"
         android:layout_marginRight="116dp"
         android:src="@mipmap/m_last" />
 </FrameLayout>
