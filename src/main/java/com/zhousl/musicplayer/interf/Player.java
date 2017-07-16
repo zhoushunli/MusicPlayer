@@ -38,7 +38,7 @@ public interface Player {
     //设置播放模式
     void setLoopState(State state);
 
-    public enum State{
+    enum State{
         //单曲循环
         STATE_LOOP_ONE,
         //全部循环

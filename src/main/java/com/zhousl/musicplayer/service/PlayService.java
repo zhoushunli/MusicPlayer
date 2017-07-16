@@ -39,7 +39,7 @@ public class PlayService extends Service implements Player.OnCompleteListener {
     public void onCreate() {
         super.onCreate();
         if (mPlayer == null)
-            mPlayer = new MusicPlayer();
+            mPlayer = MusicPlayer.getPlayer();
         mPlayer.setOnCompleteListener(this);
         initReceiver();
 //        launchRemoteView();
@@ -264,9 +264,13 @@ public class PlayService extends Service implements Player.OnCompleteListener {
                     }else {
                         play();
                     }
+                    notifyPlayingStateChanged(getMusic().getState());
                 }
             }
             refreshRemoteView();
         }
+    }
+    private void notifyPlayingStateChanged(Music.MusicState state){
+
     }
 }
