@@ -1,138 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/background"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:layout_height="match_parent">
 
-    <FrameLayout
+    <android.support.v7.widget.AppCompatImageView
         android:layout_width="match_parent"
-        android:id="@+id/toolbar"
-        android:layout_height="50dp">
-
-        <ImageView
-            android:id="@+id/back"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:padding="11dp"
-            android:src="@mipmap/back" />
-
-        <LinearLayout
-            android:paddingTop="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="70dp"
-            android:orientation="vertical"
-            android:layout_marginRight="80dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:gravity="center_vertical"
-                android:singleLine="true"
-                android:text="我好像在哪里见过你"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
-            <TextView
-                android:layout_marginTop="5dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/backgroud_color"
-                android:textSize="11sp"
-                android:text="薛之谦"/>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/gradient_line" />
-    </FrameLayout>
-
-    <ImageView
-        android:id="@+id/album"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:background="@mipmap/album_black" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/album"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="我好像在哪里见过你"
-        android:textColor="@color/white"
-        android:textSize="15sp" />
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/play_bg" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_alignParentBottom="true">
+        android:layout_height="match_parent"
+        android:background="#99000000">
 
-        <ImageView
-            android:id="@+id/play"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="70dp"
-            android:src="@drawable/play_pause_selector" />
-
-        <ImageView
-            android:id="@+id/last"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignBottom="@id/play"
-            android:layout_alignTop="@id/play"
-            android:layout_marginRight="30dp"
-            android:layout_toLeftOf="@id/play"
-            android:padding="2dp"
-            android:src="@mipmap/m_last" />
-
-        <ImageView
-            android:id="@+id/next"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignBottom="@id/play"
-            android:layout_alignTop="@id/play"
-            android:layout_marginLeft="30dp"
-            android:layout_toRightOf="@id/play"
-            android:padding="2dp"
-            android:src="@mipmap/m_next" />
-
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignBottom="@id/last"
-            android:layout_alignTop="@id/last"
-            android:layout_marginRight="30dp"
-            android:layout_toLeftOf="@id/last"
-            android:padding="3dp"
-            android:src="@mipmap/repeat" />
-
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignBottom="@id/next"
-            android:layout_alignTop="@id/next"
-            android:layout_marginLeft="30dp"
-            android:layout_toRightOf="@id/next"
-            android:padding="2dp"
-            android:src="@mipmap/playlist" />
-
-        <android.support.v7.widget.AppCompatSeekBar
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"></android.support.v7.widget.Toolbar>
+
+        <ImageView
+            android:id="@+id/album"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_below="@id/toolbar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/artist"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="30dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp" />
+            android:layout_below="@id/album"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="薛之谦"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/lrc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artist"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="18dp"
+            android:text="我好在哪儿见过你"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
     </RelativeLayout>
-</RelativeLayout>
+
+</FrameLayout>

@@ -58,6 +58,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mReceiver = new PlayingChangeReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Action.PLAY_NEXT);
+        filter.addAction(Action.REMOTE_STOP);
+        registerReceiver(mReceiver, filter);
         initView();
         initService();
     }
@@ -111,28 +116,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mReceiver = new PlayingChangeReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Action.PLAY_NEXT);
-        filter.addAction(Action.REMOTE_STOP);
-        registerReceiver(mReceiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mReceiver != null)
-            unregisterReceiver(mReceiver);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mServiceConnection != null) {
             unbindService(mServiceConnection);
         }
+        if (mReceiver != null)
+            unregisterReceiver(mReceiver);
     }
 
     @Override

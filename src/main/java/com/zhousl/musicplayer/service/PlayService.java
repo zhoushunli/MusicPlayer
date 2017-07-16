@@ -264,13 +264,9 @@ public class PlayService extends Service implements Player.OnCompleteListener {
                     }else {
                         play();
                     }
-                    notifyPlayingStateChanged(getMusic().getState());
                 }
             }
             refreshRemoteView();
         }
-    }
-    private void notifyPlayingStateChanged(Music.MusicState state){
-
     }
 }

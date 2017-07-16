@@ -67,18 +67,5 @@ public class PlayingView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawRect(canvas);
-        getHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                invalidate();
-            }
-        },250);
-    }
-    private void drawRect(Canvas canvas){
-        for (int i = 0; i < 5; i++) {
-            canvas.drawRect(2*i*mWidth*1.0f/9,Math.min(mHeight*1.0f/2,mHeight*random.nextFloat()),
-                    (2*i+1)*mWidth*1.0f/9,mHeight,mPaint);
-        }
     }
 }
