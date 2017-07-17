@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
+        android:id="@+id/play_background"
         android:src="@drawable/play_bg" />
 
     <RelativeLayout
@@ -29,11 +30,11 @@
 
         <ImageView
             android:id="@+id/album"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
             android:layout_below="@id/toolbar"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="40dp"
             android:src="@mipmap/ic_launcher" />
 
         <TextView
@@ -64,8 +65,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/lrc"
             android:layout_marginTop="30dp"
-            android:paddingLeft="18dp"
-            android:paddingRight="18dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:orientation="horizontal">
 
             <android.support.v7.widget.AppCompatImageView
@@ -101,15 +102,16 @@
             android:layout_below="@id/play_control"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingLeft="18dp"
-            android:layout_marginTop="28dp"
-            android:paddingRight="18dp">
+            android:paddingLeft="28dp"
+            android:layout_marginTop="32dp"
+            android:paddingRight="28dp">
 
             <TextView
                 android:id="@+id/time_played"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0:00"
+                android:textSize="10sp"
                 android:textColor="#fff" />
 
             <android.support.v7.widget.AppCompatSeekBar
@@ -124,6 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="5:30"
+                android:textSize="10sp"
                 android:textColor="#fff" />
         </LinearLayout>
 
