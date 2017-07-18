@@ -1,15 +1,6 @@
 package com.zhousl.musicplayer.view;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.os.Bundle;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
@@ -22,9 +13,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
-import com.zhousl.musicplayer.BaseActivity;
 import com.zhousl.musicplayer.Music;
 import com.zhousl.musicplayer.MusicPlayer;
 import com.zhousl.musicplayer.R;
@@ -98,6 +86,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
                 .into(playBackground);
         findViewById(R.id.play_state).setOnClickListener(this);
         findViewById(R.id.play_previous).setOnClickListener(this);
+        findViewById(R.id.play_list).setOnClickListener(this);
         playPause = (AppCompatImageView) findViewById(R.id.play_pause);
         playPause.setOnClickListener(this);
         findViewById(R.id.play_next).setOnClickListener(this);
@@ -106,9 +95,6 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         progress = (AppCompatSeekBar) findViewById(R.id.play_progress);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-//        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.play_bg));
-//        roundedBitmapDrawable.setCircular(true);
-//        album.setImageDrawable(roundedBitmapDrawable);
         Glide.with(this)
                 .load(R.drawable.play_bg)
                 .bitmapTransform(new CropCircleTransformation(this))
@@ -125,6 +111,8 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.play_pause:
                 break;
             case R.id.play_next:
+                break;
+            case R.id.play_list:
                 break;
         }
     }
