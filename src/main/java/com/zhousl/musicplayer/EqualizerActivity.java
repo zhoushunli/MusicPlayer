@@ -7,6 +7,6 @@ package com.zhousl.musicplayer;
 public class EqualizerActivity extends BaseActivity {
     @Override
     protected int getRes() {
-        return 0;
+        return R.layout.act_equalizer;
     }
 }
