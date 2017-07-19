@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_camera"
+            android:title="Equalizer" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:title="Timer" />
+        <item
+            android:id="@+id/nav_slideshow"
+            android:title="Rate Us" />
+    </group>
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_share"
+            android:title="Share" />
+        <item
+            android:id="@+id/nav_send"
+            android:title="Send" />
+    </group>
+
+</menu>
