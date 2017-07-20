@@ -11,22 +11,26 @@ public class TimeUtil {
             return "00:00";
         long seconds = getSeconds(time);
         if (seconds < 60) {
-            return "00:" + seconds;
+            return getFormattedSubTimeStr(seconds);
         } else {
             long minutes = getMinutes(time);
             if (minutes < 60) {
-                return (minutes >= 10 ? minutes : ("0" + minutes)) + ":" + (seconds - minutes * 60);
+                return getFormattedSubTimeStr(minutes) + ":" + getFormattedSubTimeStr(seconds - minutes * 60);
             } else {
                 long hour = getHour(time);
-                return (hour >= 10 ? hour : ("0:" + hour)) + ":"
-                        + ((minutes - hour * 60) >= 10 ? (minutes - hour * 60) : ("0:" + (minutes - hour * 60))) + ":"
-                        + ((seconds - minutes * 60 - hour * 3600) >= 10 ? (seconds - minutes * 60 - hour * 3600) : ("0:" + (seconds - minutes * 60 - hour * 3600)));
+                return getFormattedSubTimeStr(hour) + ":"
+                        + getFormattedSubTimeStr(minutes - hour * 60) + ":"
+                        + getFormattedSubTimeStr(seconds - minutes * 60 - hour * 3600);
             }
         }
     }
 
     private static long getSeconds(long time) {
         return time / 1000;
+    }
+
+    private static String getFormattedSubTimeStr(long time) {
+        return time >= 10 ? (time + "") : ("0" + time);
     }
 
     private static long getMinutes(long time) {

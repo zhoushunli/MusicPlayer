@@ -46,7 +46,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     private AppCompatImageView playPause;
     private MusicPlayer player;
     private Handler mHandler;
-    private long REFRESH_DELAY = 500;
+    private long REFRESH_DELAY = 1000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -186,7 +186,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        player.seekTo((long) (progress * 1.0f / seekBar.getMax() * player.getMusic().getDuration()));
+//        player.seekTo((long) (progress * 1.0f / seekBar.getMax() * player.getMusic().getDuration()));
     }
 
     @Override
@@ -196,7 +196,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        player.seekTo((long) (seekBar.getProgress() * 1.0f / seekBar.getMax() * player.getMusic().getDuration()));
     }
 
     @Override
