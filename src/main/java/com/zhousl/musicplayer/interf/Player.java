@@ -60,6 +60,11 @@ public interface Player {
     }
 
     interface OnSeekCompleteListener {
-        void onSeekComplete();
+        void onSeekComplete(long curPosition);
+    }
+    interface onPlayStateChangedListener{
+        void onMusicPause(Music music);
+        void onMusicPlay(Music music);
+        void onMusicResume(Music music);
     }
 }

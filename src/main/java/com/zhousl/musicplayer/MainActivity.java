@@ -26,6 +26,7 @@ import com.zhousl.musicplayer.frag.NetFrag;
 import com.zhousl.musicplayer.service.PlayService;
 import com.zhousl.musicplayer.util.Preferences;
 import com.zhousl.musicplayer.util.UIUtil;
+import com.zhousl.musicplayer.view.PlayingActivity;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mLast.setOnClickListener(this);
         mNext.setOnClickListener(this);
         mPlay.setOnClickListener(this);
+        mController.setOnClickListener(this);
         pagerContent.setAdapter(new HomePageAdapter(getSupportFragmentManager(), prepareFrag()));
         pagerContent.addOnPageChangeListener(this);
         localTab.setSelected(true);
@@ -129,6 +131,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void onClick(View v) {
         if (v==more){
             showMore();
+            return;
+        }
+        if (v==mController){
+            startActivity(new Intent(this, PlayingActivity.class));
             return;
         }
         if (v == mLast) {

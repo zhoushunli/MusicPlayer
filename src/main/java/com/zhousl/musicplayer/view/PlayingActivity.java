@@ -1,10 +1,14 @@
 package com.zhousl.musicplayer.view;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -27,7 +31,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
  * Created by shunli on 2017/5/1.
  */
 
-public class PlayingActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+public class PlayingActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, Player.onPlayStateChangedListener {
 
     private ImageView album;
     private Toolbar toolbar;
@@ -38,39 +42,60 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     private AppCompatSeekBar progress;
     private Player.State[] states = {Player.State.STATE_LOOP_ALL, Player.State.STATE_LOOP_ONE, Player.State.STATE_LOOP_ORDER, Player.State.STATE_LOOP_SHUFFLE};
     private Player.State curState;
+    private int stateIndex;
     private AppCompatImageView playPause;
+    private MusicPlayer player;
+    private Handler mHandler;
+    private long REFRESH_DELAY = 500;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_play);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        player = MusicPlayer.getPlayer();
+        player.addOnPlayStateChangedListener(this);
+        mHandler = new Handler(Looper.getMainLooper());
         init();
-        attachViewState();
+        refreshViewState();
     }
 
-    private void attachViewState() {
-        MusicPlayer player = MusicPlayer.getPlayer();
+    private Runnable r = new Runnable() {
+        @Override
+        public void run() {
+            refreshProgress();
+            mHandler.removeCallbacks(this);
+            Log.i("--------", "uuuuuuuu");
+            mHandler.postDelayed(this, REFRESH_DELAY);
+        }
+    };
+
+    private void refreshViewState() {
         if (player == null || player.getMusic() == null || player.getMusicList() == null)
             return;
-        if (curState == null) {
-            curState = states[0];
-        }
+        curState = states[stateIndex];
         toolbar.setTitle(player.getMusic().getName());
         toolbar.setSubtitle(player.getMusic().getArtist());
-        ((RelativeLayout.LayoutParams) toolbar.getLayoutParams()).topMargin= UIUtil.getStatusBarHeight(this);
-        toolbar.requestLayout();
         if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
-            playPause.setImageResource(R.mipmap.m_play);
-        } else {
             playPause.setImageResource(R.mipmap.m_pause);
+        } else {
+            playPause.setImageResource(R.mipmap.m_play);
         }
         artist.setText(player.getMusic().getArtist());
-        timePlayed.setText(TimeUtil.getFormattedTimeStr(player.getMusic().getCurPosition()));
-        timeTotal.setText(TimeUtil.getFormattedTimeStr(player.getMusic().getDuration()));
+        lrc.setText("");
+//        refreshProgress();
+        if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
+            mHandler.post(r);
+        } else if (player.getMusic().getState() == Music.MusicState.STATE_PAUSE) {
+            refreshProgress();
+        }
+    }
+
+    private void refreshProgress() {
         progress.setMax((int) player.getMusic().getDuration());
-        progress.setProgress((int) player.getMusic().getCurPosition());
-        progress.setOnSeekBarChangeListener(this);
+        progress.setProgress(player.getCurPlayPosition());
+        timePlayed.setText(TimeUtil.getFormattedTimeStr(player.getCurPlayPosition()));
+        timeTotal.setText(TimeUtil.getFormattedTimeStr(player.getMusic().getDuration()));
     }
 
     private void init() {
@@ -82,7 +107,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
                 .load(R.drawable.play_bg)
                 .centerCrop()
                 .crossFade(500)
-                .bitmapTransform(new BlurTransformation(this,30))
+                .bitmapTransform(new BlurTransformation(this, 40))
                 .into(playBackground);
         findViewById(R.id.play_state).setOnClickListener(this);
         findViewById(R.id.play_previous).setOnClickListener(this);
@@ -93,8 +118,17 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         timePlayed = (TextView) findViewById(R.id.time_played);
         timeTotal = (TextView) findViewById(R.id.time_total);
         progress = (AppCompatSeekBar) findViewById(R.id.play_progress);
+        progress.setOnSeekBarChangeListener(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        ((RelativeLayout.LayoutParams) toolbar.getLayoutParams()).topMargin = UIUtil.getStatusBarHeight(this);
+        toolbar.requestLayout();
         Glide.with(this)
                 .load(R.drawable.play_bg)
                 .bitmapTransform(new CropCircleTransformation(this))
@@ -105,21 +139,54 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.play_state:
+                stateIndex++;
+                if (stateIndex >= states.length)
+                    stateIndex = 0;
                 break;
             case R.id.play_previous:
+                player.playPrevious();
+                refreshViewState();
                 break;
             case R.id.play_pause:
+                doPlayOrPause();
+                refreshViewState();
                 break;
             case R.id.play_next:
+                player.playNext();
+                refreshViewState();
                 break;
             case R.id.play_list:
                 break;
         }
     }
 
+    private void doPlayOrPause() {
+        if (player.getMusic().getState() == Music.MusicState.STATE_PAUSE) {
+            player.resume();
+        } else if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
+            player.pause();
+        } else {
+            if (player.getMusic() == null) {
+                if (player.getMusicList() == null || player.getMusicList().size() == 0)
+                    return;
+                player.playIndex(0);
+            } else {
+                player.play();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        player.removeOnPlayStateChangeListener(this);
+        if (r != null)
+            mHandler.removeCallbacks(r);
+    }
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+        player.seekTo((long) (progress * 1.0f / seekBar.getMax() * player.getMusic().getDuration()));
     }
 
     @Override
@@ -130,5 +197,21 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
 
+    }
+
+    @Override
+    public void onMusicPause(Music music) {
+        if (r != null)
+            mHandler.removeCallbacks(r);
+    }
+
+    @Override
+    public void onMusicPlay(Music music) {
+        refreshViewState();
+    }
+
+    @Override
+    public void onMusicResume(Music music) {
+        mHandler.post(r);
     }
 }

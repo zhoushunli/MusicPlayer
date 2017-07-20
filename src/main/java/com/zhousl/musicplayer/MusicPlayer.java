@@ -8,14 +8,15 @@ import com.zhousl.musicplayer.util.Preferences;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Created by shunli on 2017/4/27.
  */
 
-public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
+public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
 
     //用于播放的播放器
     private static MediaPlayer mPlayer;
@@ -26,6 +27,9 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
     private OnSeekCompleteListener onSeekCompleteListener;
     //播放完毕监听
     private OnCompleteListener onCompleteListener;
+    //播放状态改变监听
+    private Set<onPlayStateChangedListener> onPlayStateChangedListenerSet;
+//    private onPlayStateChangedListener onPlayStateChangedListener;
     //当前播放的音乐
     private Music mMusic;
     //默认播放状态为全部循环
@@ -46,15 +50,18 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mPlayer = new MediaPlayer();
         musicList = new ArrayList<>();
         mPlayer.setOnCompletionListener(this);
-        mPlayer.setOnSeekCompleteListener(this);
         mPlayer.setOnErrorListener(this);
         mRandom = new Random();
+        onPlayStateChangedListenerSet=new HashSet<>();
     }
 
     public Music getMusic() {
         return mMusic;
     }
 
+    public int getCurPlayPosition(){
+        return mPlayer.getCurrentPosition();
+    }
     public void setMusic(Music mMusic) {
         mIndex = getIndexInternal();
         musicReset();
@@ -67,10 +74,17 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
             try {
                 mPlayer.prepare();
                 mPlayer.start();
+                notifyPlay();
             } catch (IOException e) {
                 e.printStackTrace();
                 release();
             }
+        }
+    }
+
+    private void notifyPlay(){
+        for (onPlayStateChangedListener onPlayStateChangedListener : onPlayStateChangedListenerSet) {
+            onPlayStateChangedListener.onMusicPlay(mMusic);
         }
     }
 
@@ -171,6 +185,13 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         mPlayer.pause();
         mMusic.setState(Music.MusicState.STATE_PAUSE);
         mMusic.setCurPosition(mPlayer.getCurrentPosition());
+        notifyPause();
+    }
+
+    private void notifyPause() {
+        for (onPlayStateChangedListener onPlayStateChangedListener : onPlayStateChangedListenerSet) {
+            onPlayStateChangedListener.onMusicPause(mMusic);
+        }
     }
 
     @Override
@@ -205,6 +226,13 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         }
         mPlayer.seekTo((int) curPosition);
         mPlayer.start();
+        notifyResume();
+    }
+
+    private void notifyResume() {
+        for (onPlayStateChangedListener onPlayStateChangedListener : onPlayStateChangedListenerSet) {
+            onPlayStateChangedListener.onMusicResume(mMusic);
+        }
     }
 
     @Override
@@ -212,6 +240,8 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         seekToWithoutPlay(curPos);
         mPlayer.seekTo((int) curPos);
         mPlayer.start();
+        if (onSeekCompleteListener!=null)
+            onSeekCompleteListener.onSeekComplete(curPos);
     }
 
     public void seekToWithoutPlay(long curPos) {
@@ -254,18 +284,21 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener,
         this.onSeekCompleteListener = onSeekCompleteListener;
     }
 
+    public void addOnPlayStateChangedListener(Player.onPlayStateChangedListener onPlayStateChangedListener) {
+        if (onPlayStateChangedListener!=null)
+            onPlayStateChangedListenerSet.add(onPlayStateChangedListener);
+    }
+
+    public void removeOnPlayStateChangeListener(Player.onPlayStateChangedListener onPlayStateChangedListener){
+        if (onPlayStateChangedListenerSet.contains(onPlayStateChangedListener))
+            onPlayStateChangedListenerSet.remove(onPlayStateChangedListener);
+    }
+
     @Override
     public void onCompletion(MediaPlayer mp) {
         reset();
         if (this.onCompleteListener != null)
             this.onCompleteListener.onCompletion();
-    }
-
-    @Override
-    public void onSeekComplete(MediaPlayer mp) {
-        if (this.onSeekCompleteListener != null) {
-            this.onSeekCompleteListener.onSeekComplete();
-        }
     }
 
     @Override
