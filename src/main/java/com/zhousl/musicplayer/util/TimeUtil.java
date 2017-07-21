@@ -6,12 +6,17 @@ package com.zhousl.musicplayer.util;
 
 public class TimeUtil {
 
+    /**
+     * 根据给定的时间毫秒值来生成格式化后的时间，不包括小时最大时间为59:59
+     * @param time
+     * @return
+     */
     public static String getFormattedTimeStr(long time) {
         if (time <= 0)
             return "00:00";
         long seconds = getSeconds(time);
         if (seconds < 60) {
-            return getFormattedSubTimeStr(seconds);
+            return "00:"+getFormattedSubTimeStr(seconds);
         } else {
             long minutes = getMinutes(time);
             if (minutes < 60) {

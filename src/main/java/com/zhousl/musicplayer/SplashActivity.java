@@ -58,43 +58,43 @@ public class SplashActivity extends Activity {
     private Animation.AnimationListener animationListener = new SimpleAnimationListener() {
         @Override
         public void onAnimationEnd(Animation animation) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                checkPermission();
-            } else {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+////                checkPermission();
+//            } else {
                 doNormalLeap();
-            }
+//            }
         }
     };
 
-    private void checkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, MULTI_REQUEST_CODE);
-        } else {
-            doNormalLeap();
-        }
-    }
+//    private void checkPermission() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) !=
+//                PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+//                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, MULTI_REQUEST_CODE);
+//        } else {
+//            doNormalLeap();
+//        }
+//    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode==MULTI_REQUEST_CODE){
-            checkResults(grantResults);
-        }
-    }
-    private void checkResults(int[] grantResults){
-        if (grantResults.length==0)
-            return;
-        for (int result : grantResults) {
-            if (result!=PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this,"需要必要权限!",Toast.LENGTH_LONG).show();
-                finish();
-                return;
-            }
-        }
-        doNormalLeap();
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode==MULTI_REQUEST_CODE){
+//            checkResults(grantResults);
+//        }
+//    }
+//    private void checkResults(int[] grantResults){
+//        if (grantResults.length==0)
+//            return;
+//        for (int result : grantResults) {
+//            if (result!=PackageManager.PERMISSION_GRANTED){
+//                Toast.makeText(this,"需要必要权限!",Toast.LENGTH_LONG).show();
+//                finish();
+//                return;
+//            }
+//        }
+//        doNormalLeap();
+//    }
     private void doNormalLeap(){
         final Handler handler=new Handler(){
             @Override
