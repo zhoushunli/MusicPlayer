@@ -204,7 +204,7 @@ public class MusicPlayer implements Player, MediaPlayer.OnCompletionListener, Me
 
     private void reset() {
         mPlayer.stop();
-        mPlayer.reset();
+//        mPlayer.reset();
         musicReset();
     }
 

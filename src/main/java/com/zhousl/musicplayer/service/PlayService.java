@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Created by shunli on 2017/4/27.
  */
 
-public class PlayService extends Service implements Player.OnCompleteListener {
+public class PlayService extends Service implements Player.OnCompleteListener, Player.onPlayStateChangedListener {
 
     private MusicPlayer mPlayer;
     public static final int REMOTE_VIEW_ID = 0x111;
@@ -41,6 +41,7 @@ public class PlayService extends Service implements Player.OnCompleteListener {
         if (mPlayer == null)
             mPlayer = MusicPlayer.getPlayer();
         mPlayer.setOnCompleteListener(this);
+        mPlayer.addOnPlayStateChangedListener(this);
         initReceiver();
 //        launchRemoteView();
     }
@@ -166,6 +167,7 @@ public class PlayService extends Service implements Player.OnCompleteListener {
         super.onDestroy();
         Log.i("destroy--", "des");
         if (mPlayer != null) {
+            mPlayer.setOnCompleteListener(null);
             mPlayer.release();
             mPlayer = null;
         }
@@ -186,50 +188,65 @@ public class PlayService extends Service implements Player.OnCompleteListener {
         sendBroadcast(intent);
     }
 
+    @Override
+    public void onMusicPause(Music music) {
+        refreshRemoteView();
+    }
+
+    @Override
+    public void onMusicPlay(Music music) {
+        refreshRemoteView();
+    }
+
+    @Override
+    public void onMusicResume(Music music) {
+        refreshRemoteView();
+    }
+
     public class MyBinder extends Binder {
 
-        public void setMusic(Music music) {
-            PlayService.this.setMusic(music);
-        }
-
-        public void setMusicList(ArrayList<Music> musicList) {
-            PlayService.this.setMusicList(musicList);
-        }
-
-        public void play() {
-            PlayService.this.play();
-        }
-
-        public void playNext() {
-            PlayService.this.playNext();
-        }
-
-        public void playPrevious() {
-            PlayService.this.playPrevious();
-        }
-
-        public void playIndex(int index) {
-            PlayService.this.playIndex(index);
-        }
-
-        public void pause() {
-            PlayService.this.pause();
-        }
-
-        public void resume() {
-            PlayService.this.resume();
-        }
-
-        public void stop() {
-            PlayService.this.stop();
-        }
-
-        public Music getMusic() {
-            return PlayService.this.getMusic();
-        }
-        public ArrayList<Music> getMusicList(){
-            return PlayService.this.getMusicList();
-        }
+//        public void setMusic(Music music) {
+//            PlayService.this.setMusic(music);
+//        }
+//
+//        public void setMusicList(ArrayList<Music> musicList) {
+//            PlayService.this.setMusicList(musicList);
+//        }
+//
+//        public void play() {
+//            PlayService.this.play();
+//        }
+//
+//        public void playNext() {
+//            PlayService.this.playNext();
+//        }
+//
+//        public void playPrevious() {
+//            PlayService.this.playPrevious();
+//        }
+//
+//        public void playIndex(int index) {
+//            PlayService.this.playIndex(index);
+//        }
+//
+//        public void pause() {
+//            PlayService.this.pause();
+//        }
+//
+//        public void resume() {
+//            PlayService.this.resume();
+//        }
+//
+//        public void stop() {
+//            PlayService.this.stop();
+//        }
+//
+//        public Music getMusic() {
+//            return PlayService.this.getMusic();
+//        }
+//        public ArrayList<Music> getMusicList(){
+//            return PlayService.this.getMusicList();
+//        }
     }
 
     class PlayReceiver extends BroadcastReceiver {
@@ -265,6 +282,7 @@ public class PlayService extends Service implements Player.OnCompleteListener {
                         play();
                     }
                 }
+                sendBroadcast(new Intent(Action.REMOTE_STOP));
             }
             refreshRemoteView();
         }

@@ -13,18 +13,18 @@
         android:supportsRtl="true"
         android:name=".MyApplication"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" android:screenOrientation="portrait">
         </activity>
         <service android:name=".service.PlayService" />
-        <activity android:name=".SplashActivity">
+        <activity android:name=".SplashActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.PlayingActivity" android:launchMode="singleTask"/>
-        <activity android:name=".EqualizerActivity"/>
+        <activity android:name=".view.PlayingActivity" android:launchMode="singleTask" android:screenOrientation="portrait"/>
+        <activity android:name=".EqualizerActivity" android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

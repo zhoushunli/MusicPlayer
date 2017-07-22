@@ -94,7 +94,7 @@
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/play_pause"
                 style="@style/controller_bt_style"
-                android:src="@mipmap/m_play" />
+                android:src="@drawable/play_pause_selector" />
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/play_next"

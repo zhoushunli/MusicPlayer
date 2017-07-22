@@ -34,7 +34,8 @@ import java.util.ArrayList;
 public class MainActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
 
     //用于和Playservice进行通信的binder对象
-    private PlayService.MyBinder mBinder;
+//    private PlayService.MyBinder mBinder;
+    private MusicPlayer mPlayer;
     private Intent mService;
     private MyConn mServiceConnection;
     private TextView localTab;
@@ -129,11 +130,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void onClick(View v) {
-        if (v==more){
+        if (v == more) {
             showMore();
             return;
         }
-        if (v==mController){
+        if (v == mController) {
             startActivity(new Intent(this, PlayingActivity.class));
             return;
         }
@@ -148,20 +149,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private void showMore() {
-        PopupWindow moreWindow=new PopupWindow(this);
+        PopupWindow moreWindow = new PopupWindow(this);
         moreWindow.setWidth(UIUtil.getScreenDimen(this).first);
         View rootView = View.inflate(this, R.layout.more_layout, null);
         moreWindow.setContentView(rootView);
         rootView.findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,EqualizerActivity.class));
+                startActivity(new Intent(MainActivity.this, EqualizerActivity.class));
             }
         });
     }
 
     private void doPlayOrPause() {
-        Music music = mBinder.getMusic();
+        Music music = mPlayer.getMusic();
         if (music == null) {
             doPlayNew(0);
             return;
@@ -170,18 +171,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             doMusicResume();
         } else if (music.getState() == Music.MusicState.STATE_PLAYING) {
             doMusicPause();
-        }else {
+        } else {
             doPlayLatestStoppedMusic();
         }
     }
 
     private void doPlayLatestStoppedMusic() {
-        mBinder.play();
+        mPlayer.play();
         refreshControllerStatus(getMusic());
     }
 
     public Music getMusic() {
-        return mBinder.getMusic();
+        return mPlayer.getMusic();
     }
 
     @Override
@@ -224,7 +225,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             if (service == null)
                 return;
             if (service instanceof PlayService.MyBinder) {
-                MainActivity.this.mBinder = (PlayService.MyBinder) service;
+                MainActivity.this.mPlayer = MusicPlayer.getPlayer();
             }
         }
 
@@ -235,36 +236,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     public void setMusic(Music music) {
-        mBinder.setMusic(music);
+        mPlayer.setMusic(music);
     }
 
     public void setMusicList(ArrayList<Music> musicList) {
-        mBinder.setMusicList(musicList);
+        mPlayer.setMusicList(musicList);
     }
 
     public void doPlayNew(int index) {
-        mBinder.playIndex(index);
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.playIndex(index);
+        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doPlayNext() {
-        mBinder.playNext();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.playNext();
+        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doPlayPrevious() {
-        mBinder.playPrevious();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.playPrevious();
+        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doMusicPause() {
-        mBinder.pause();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.pause();
+        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doMusicResume() {
-        mBinder.resume();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.resume();
+        refreshControllerStatus(mPlayer.getMusic());
     }
 
     @Override
@@ -284,26 +285,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action==null)
+            if (action == null)
                 return;
             if (action.equals(Action.PLAY_NEXT)) {
-                refreshControllerStatus(getMusic());
                 mLocalFrag.notifyPlayingChanged();
-            }else if (action.equals(Action.REMOTE_STOP)){
+                refreshControllerStatus(getMusic());
+            } else if (action.equals(Action.REMOTE_STOP)) {
                 mLocalFrag.notifyStop();
             }
         }
     }
 
     public void refreshControllerStatus(Music music) {
-        if (music == null){
+        if (music == null) {
             return;
         }
         mTitle.setText(music.getName());
         mArtist.setText(music.getArtist());
         mPlay.setSelected(music.getState() == Music.MusicState.STATE_PLAYING);
-        if (music.getAlbum()!=null){
-            Log.i("album--",music.getAlbum());
+        if (music.getAlbum() != null) {
+            Log.i("album--", music.getAlbum());
         }
     }
 }

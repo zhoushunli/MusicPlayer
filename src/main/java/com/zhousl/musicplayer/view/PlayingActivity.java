@@ -1,5 +1,9 @@
 package com.zhousl.musicplayer.view;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.zhousl.musicplayer.Music;
 import com.zhousl.musicplayer.MusicPlayer;
 import com.zhousl.musicplayer.R;
+import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.interf.Player;
 import com.zhousl.musicplayer.util.TimeUtil;
 import com.zhousl.musicplayer.util.UIUtil;
@@ -47,6 +52,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     private MusicPlayer player;
     private Handler mHandler;
     private long REFRESH_DELAY = 1000;
+    private RemoteReceiver remoteReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,7 +63,15 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         player.addOnPlayStateChangedListener(this);
         mHandler = new Handler(Looper.getMainLooper());
         init();
+        initReceiver();
         refreshViewState();
+    }
+
+    private void initReceiver() {
+        IntentFilter filter=new IntentFilter();
+        filter.addAction(Action.REMOTE_STOP);
+        remoteReceiver = new RemoteReceiver();
+        registerReceiver(remoteReceiver,filter);
     }
 
     private Runnable r = new Runnable() {
@@ -76,11 +90,12 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         curState = states[stateIndex];
         toolbar.setTitle(player.getMusic().getName());
         toolbar.setSubtitle(player.getMusic().getArtist());
-        if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
-            playPause.setImageResource(R.mipmap.m_pause);
-        } else {
-            playPause.setImageResource(R.mipmap.m_play);
-        }
+//        if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
+//            playPause.setImageResource(R.mipmap.m_pause);
+//        } else {
+//            playPause.setImageResource(R.mipmap.m_play);
+//        }
+        playPause.setSelected(player.getMusic().getState()== Music.MusicState.STATE_PLAYING);
         artist.setText(player.getMusic().getArtist());
         lrc.setText("");
 //        refreshProgress();
@@ -161,12 +176,15 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void doPlayOrPause() {
-        if (player.getMusic().getState() == Music.MusicState.STATE_PAUSE) {
+        Music music = player.getMusic();
+        if (music==null)
+            return;
+        if (music.getState() == Music.MusicState.STATE_PAUSE) {
             player.resume();
-        } else if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
+        } else if (music.getState() == Music.MusicState.STATE_PLAYING) {
             player.pause();
         } else {
-            if (player.getMusic() == null) {
+            if (music == null) {
                 if (player.getMusicList() == null || player.getMusicList().size() == 0)
                     return;
                 player.playIndex(0);
@@ -182,6 +200,8 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         player.removeOnPlayStateChangeListener(this);
         if (r != null)
             mHandler.removeCallbacks(r);
+        if (remoteReceiver!=null)
+            unregisterReceiver(remoteReceiver);
     }
 
     @Override
@@ -213,5 +233,18 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onMusicResume(Music music) {
         mHandler.post(r);
+    }
+
+    class RemoteReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent!=null||intent.getAction().equals(Action.REMOTE_STOP)){
+                Music music = player.getMusic();
+                if (music==null)
+                    return;
+                playPause.setSelected(music.getState()== Music.MusicState.STATE_PLAYING);
+            }
+        }
     }
 }
