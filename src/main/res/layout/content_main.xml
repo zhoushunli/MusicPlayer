@@ -19,6 +19,7 @@
             android:layout_marginLeft="16dp"
             android:padding="5dp"
             android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackground"
             app:srcCompat="@drawable/ic_menu_indicator"
             android:id="@+id/menu_indicator"/>
 
@@ -40,6 +41,7 @@
             android:layout_marginRight="10dp"
             android:layout_height="match_parent"
             android:padding="12dp"
+            android:background="?android:attr/selectableItemBackground"
             android:src="@mipmap/more"/>
     </RelativeLayout>
 
@@ -52,6 +54,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
+        android:alpha="0.2"
         android:background="@color/divider" />
 
     <include layout="@layout/controllerview" />

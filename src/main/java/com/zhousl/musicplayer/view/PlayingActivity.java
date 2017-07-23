@@ -21,7 +21,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.zhousl.customui.CircularProgressBar;
 import com.zhousl.musicplayer.Music;
+import com.zhousl.musicplayer.MusicHelper;
 import com.zhousl.musicplayer.MusicPlayer;
 import com.zhousl.musicplayer.R;
 import com.zhousl.musicplayer.constants.Action;
@@ -53,6 +55,8 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     private Handler mHandler;
     private long REFRESH_DELAY = 1000;
     private RemoteReceiver remoteReceiver;
+    private AppCompatImageView playBackground;
+    private CircularProgressBar circleProgress;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,10 +72,10 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initReceiver() {
-        IntentFilter filter=new IntentFilter();
+        IntentFilter filter = new IntentFilter();
         filter.addAction(Action.REMOTE_STOP);
         remoteReceiver = new RemoteReceiver();
-        registerReceiver(remoteReceiver,filter);
+        registerReceiver(remoteReceiver, filter);
     }
 
     private Runnable r = new Runnable() {
@@ -90,15 +94,9 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         curState = states[stateIndex];
         toolbar.setTitle(player.getMusic().getName());
         toolbar.setSubtitle(player.getMusic().getArtist());
-//        if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
-//            playPause.setImageResource(R.mipmap.m_pause);
-//        } else {
-//            playPause.setImageResource(R.mipmap.m_play);
-//        }
-        playPause.setSelected(player.getMusic().getState()== Music.MusicState.STATE_PLAYING);
+        playPause.setSelected(player.getMusic().getState() == Music.MusicState.STATE_PLAYING);
         artist.setText(player.getMusic().getArtist());
         lrc.setText("");
-//        refreshProgress();
         if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
             mHandler.post(r);
         } else if (player.getMusic().getState() == Music.MusicState.STATE_PAUSE) {
@@ -109,6 +107,9 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     private void refreshProgress() {
         progress.setMax((int) player.getMusic().getDuration());
         progress.setProgress(player.getCurPlayPosition());
+        circleProgress.setMax((int) player.getMusic().getDuration());
+        circleProgress.setProgress(player.getCurPlayPosition());
+
         timePlayed.setText(TimeUtil.getFormattedTimeStr(player.getCurPlayPosition()));
         timeTotal.setText(TimeUtil.getFormattedTimeStr(player.getMusic().getDuration()));
     }
@@ -117,13 +118,9 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         album = (ImageView) findViewById(R.id.album);
         artist = (TextView) findViewById(R.id.artist);
         lrc = (TextView) findViewById(R.id.lrc);
-        AppCompatImageView playBackground = (AppCompatImageView) findViewById(R.id.play_background);
-        Glide.with(this)
-                .load(R.drawable.play_bg)
-                .centerCrop()
-                .crossFade(500)
-                .bitmapTransform(new BlurTransformation(this, 40))
-                .into(playBackground);
+        circleProgress = (CircularProgressBar) findViewById(R.id.circle_progress);
+        playBackground = (AppCompatImageView) findViewById(R.id.play_background);
+        refreshArtworks();
         findViewById(R.id.play_state).setOnClickListener(this);
         findViewById(R.id.play_previous).setOnClickListener(this);
         findViewById(R.id.play_list).setOnClickListener(this);
@@ -144,10 +141,46 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         });
         ((RelativeLayout.LayoutParams) toolbar.getLayoutParams()).topMargin = UIUtil.getStatusBarHeight(this);
         toolbar.requestLayout();
-        Glide.with(this)
-                .load(R.drawable.play_bg)
-                .bitmapTransform(new CropCircleTransformation(this))
-                .into(album);
+    }
+
+    private void refreshArtworks() {
+        if (player != null && player.getMusic() != null) {
+            byte[] thumb = MusicHelper.getThumb(player.getMusic().getFilePath());
+            if (thumb != null) {
+                Glide.with(this)
+                        .load(thumb)
+                        .centerCrop()
+                        .crossFade(500)
+                        .bitmapTransform(new BlurTransformation(this, 80))
+                        .into(playBackground);
+                Glide.with(this)
+                        .load(thumb)
+                        .bitmapTransform(new CropCircleTransformation(this))
+                        .into(album);
+            } else {
+                Glide.with(this)
+                        .load(R.drawable.play_bg)
+                        .centerCrop()
+                        .crossFade(500)
+                        .bitmapTransform(new BlurTransformation(this, 80))
+                        .into(playBackground);
+                Glide.with(this)
+                        .load(R.drawable.play_bg)
+                        .bitmapTransform(new CropCircleTransformation(this))
+                        .into(album);
+            }
+        } else {
+            Glide.with(this)
+                    .load(R.drawable.play_bg)
+                    .centerCrop()
+                    .crossFade(500)
+                    .bitmapTransform(new BlurTransformation(this, 80))
+                    .into(playBackground);
+            Glide.with(this)
+                    .load(R.drawable.play_bg)
+                    .bitmapTransform(new CropCircleTransformation(this))
+                    .into(album);
+        }
     }
 
     @Override
@@ -177,7 +210,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void doPlayOrPause() {
         Music music = player.getMusic();
-        if (music==null)
+        if (music == null)
             return;
         if (music.getState() == Music.MusicState.STATE_PAUSE) {
             player.resume();
@@ -200,7 +233,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         player.removeOnPlayStateChangeListener(this);
         if (r != null)
             mHandler.removeCallbacks(r);
-        if (remoteReceiver!=null)
+        if (remoteReceiver != null)
             unregisterReceiver(remoteReceiver);
     }
 
@@ -228,6 +261,7 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onMusicPlay(Music music) {
         refreshViewState();
+        refreshArtworks();
     }
 
     @Override
@@ -235,15 +269,15 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         mHandler.post(r);
     }
 
-    class RemoteReceiver extends BroadcastReceiver{
+    class RemoteReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent!=null||intent.getAction().equals(Action.REMOTE_STOP)){
+            if (intent != null || intent.getAction().equals(Action.REMOTE_STOP)) {
                 Music music = player.getMusic();
-                if (music==null)
+                if (music == null)
                     return;
-                playPause.setSelected(music.getState()== Music.MusicState.STATE_PLAYING);
+                playPause.setSelected(music.getState() == Music.MusicState.STATE_PLAYING);
             }
         }
     }

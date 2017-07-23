@@ -3,7 +3,7 @@
     android:id="@+id/controller"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:background="@color/themeColor2">
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/music_title"
@@ -16,7 +16,7 @@
         android:focusableInTouchMode="true"
         android:singleLine="true"
         android:text="我好像在哪儿见过你"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="13sp" />
 
     <TextView
@@ -28,21 +28,21 @@
         android:ellipsize="end"
         android:lines="1"
         android:text="薛之谦"
-        android:textColor="@color/themeColor3"
+        android:textColor="@color/gray"
         android:textSize="10sp" />
 
     <ImageView
         android:id="@+id/music_cover"
-        android:layout_width="40dp"
+        android:layout_width="50dp"
+        android:padding="2dp"
         android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
         android:src="@mipmap/m_album_black" />
 
     <ImageView
         android:id="@+id/next"
         style="@style/controller_bt_style.mainpage"
         android:layout_marginRight="16dp"
-        android:src="@mipmap/m_next" />
+        android:src="@mipmap/b_next" />
 
     <ImageView
         android:id="@+id/play"
@@ -54,5 +54,5 @@
         android:id="@+id/last"
         style="@style/controller_bt_style.mainpage"
         android:layout_marginRight="116dp"
-        android:src="@mipmap/m_last" />
+        android:src="@mipmap/b_last" />
 </FrameLayout>

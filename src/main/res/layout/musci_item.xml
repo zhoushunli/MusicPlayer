@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:minHeight="60dp"
     android:layout_height="wrap_content">
 
@@ -25,6 +26,13 @@
         android:layout_marginLeft="10dp"
         android:textColor="@color/playing_artist_text_selector"
         android:id="@+id/artist"/>
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:background="?android:attr/selectableItemBackground"
+        app:srcCompat="@drawable/ic_more_vert"
+        android:layout_gravity="right|center_vertical"/>
     <View
         android:layout_marginLeft="10dp"
         android:layout_width="wrap_content"

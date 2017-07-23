@@ -1,5 +1,9 @@
 package com.zhousl.musicplayer;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,16 +17,19 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.zhousl.musicplayer.adapter.HomePageAdapter;
 import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.frag.LocalFrag;
 import com.zhousl.musicplayer.frag.NetFrag;
+import com.zhousl.musicplayer.interf.Player;
 import com.zhousl.musicplayer.service.PlayService;
 import com.zhousl.musicplayer.util.Preferences;
 import com.zhousl.musicplayer.util.UIUtil;
@@ -30,8 +37,11 @@ import com.zhousl.musicplayer.view.PlayingActivity;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
+public class MainActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, Player.onPlayStateChangedListener {
 
     //用于和Playservice进行通信的binder对象
 //    private PlayService.MyBinder mBinder;
@@ -56,6 +66,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private View mController;
     private View more;
     private ImageView cover;
+    private ArrayList<Music> musicListDelay;
+    private Music musicDelay;
+    private ObjectAnimator animator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +139,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
         if (mReceiver != null)
             unregisterReceiver(mReceiver);
+        if (mPlayer != null)
+            mPlayer.removeOnPlayStateChangeListener(this);
     }
 
     @Override
@@ -218,6 +233,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         target.startAnimation(sa);
     }
 
+    @Override
+    public void onMusicPause(Music music) {
+        refreshControllerStatus(music);
+        mLocalFrag.notifyPlayingChanged();
+    }
+
+    @Override
+    public void onMusicPlay(Music music) {
+        refreshControllerStatus(music);
+        mLocalFrag.notifyPlayingChanged();
+    }
+
+    @Override
+    public void onMusicResume(Music music) {
+        refreshControllerStatus(music);
+        mLocalFrag.notifyPlayingChanged();
+    }
+
     class MyConn implements ServiceConnection {
 
         @Override
@@ -226,6 +259,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 return;
             if (service instanceof PlayService.MyBinder) {
                 MainActivity.this.mPlayer = MusicPlayer.getPlayer();
+                mPlayer.addOnPlayStateChangedListener(MainActivity.this);
+                if (musicDelay != null) {
+                    setMusic(musicDelay);
+                }
+                if (musicListDelay != null) {
+                    setMusicList(musicListDelay);
+                }
             }
         }
 
@@ -236,36 +276,52 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     public void setMusic(Music music) {
-        mPlayer.setMusic(music);
+        if (mPlayer == null) {
+            this.setMusicDelay(music);
+        } else {
+            mPlayer.setMusic(music);
+        }
     }
 
     public void setMusicList(ArrayList<Music> musicList) {
-        mPlayer.setMusicList(musicList);
+        if (mPlayer == null) {
+            this.setMusicListDelay(musicList);
+        } else {
+            mPlayer.setMusicList(musicList);
+        }
+    }
+
+    public void setMusicDelay(Music musicDelay) {
+        this.musicDelay = musicDelay;
+    }
+
+    public void setMusicListDelay(ArrayList<Music> musicListDelay) {
+        this.musicListDelay = musicListDelay;
     }
 
     public void doPlayNew(int index) {
         mPlayer.playIndex(index);
-        refreshControllerStatus(mPlayer.getMusic());
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doPlayNext() {
         mPlayer.playNext();
-        refreshControllerStatus(mPlayer.getMusic());
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doPlayPrevious() {
         mPlayer.playPrevious();
-        refreshControllerStatus(mPlayer.getMusic());
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doMusicPause() {
         mPlayer.pause();
-        refreshControllerStatus(mPlayer.getMusic());
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doMusicResume() {
         mPlayer.resume();
-        refreshControllerStatus(mPlayer.getMusic());
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     @Override
@@ -296,9 +352,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
+    private Music lastMusic;
+
     public void refreshControllerStatus(Music music) {
         if (music == null) {
             return;
+        }
+        byte[] thumb = MusicHelper.getThumb(music.getFilePath());
+        if (thumb != null && music != lastMusic) {
+            Glide.with(this)
+                    .load(thumb)
+                    .asBitmap()
+                    .transform(new CropCircleTransformation(this))
+                    .into(cover);
+            lastMusic = music;
+        }
+        if (music.getState() == Music.MusicState.STATE_PLAYING) {
+            abortAnime();
+            animateArtWorks();
+        } else {
+            abortAnime();
         }
         mTitle.setText(music.getName());
         mArtist.setText(music.getArtist());
@@ -306,5 +379,39 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (music.getAlbum() != null) {
             Log.i("album--", music.getAlbum());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mPlayer != null && mPlayer.getMusic() != null && mPlayer.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
+            animateArtWorks();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        abortAnime();
+    }
+
+    private float curPosition;
+    private void animateArtWorks() {
+        animator = ObjectAnimator.ofFloat(cover, "rotation",Math.max(0,curPosition), Math.max(0,curPosition)+360);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(12000);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                curPosition=Float.valueOf(animation.getAnimatedValue("rotation").toString());
+            }
+        });
+        animator.start();
+    }
+
+    private void abortAnime() {
+        if (animator != null)
+            animator.cancel();
     }
 }
