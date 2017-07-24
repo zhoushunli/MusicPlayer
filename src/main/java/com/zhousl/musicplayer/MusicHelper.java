@@ -3,6 +3,8 @@ package com.zhousl.musicplayer;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.provider.MediaStore;
 
 import java.io.File;
@@ -57,6 +59,12 @@ public class MusicHelper {
             musicList.add(music);
         }
         return musicList;
+    }
+    public static byte[] getThumb(String path){
+        MediaMetadataRetriever retriever=new MediaMetadataRetriever();
+        retriever.setDataSource(path);
+        byte[] art = retriever.getEmbeddedPicture();
+        return art;
     }
     //用来扫描所有文件夹
     public ArrayList<Music> scanMusic(){

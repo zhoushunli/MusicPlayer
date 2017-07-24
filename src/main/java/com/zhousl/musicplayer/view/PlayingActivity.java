@@ -1,5 +1,9 @@
 package com.zhousl.musicplayer.view;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,9 +21,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.zhousl.customui.CircularProgressBar;
 import com.zhousl.musicplayer.Music;
+import com.zhousl.musicplayer.MusicHelper;
 import com.zhousl.musicplayer.MusicPlayer;
 import com.zhousl.musicplayer.R;
+import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.interf.Player;
 import com.zhousl.musicplayer.util.TimeUtil;
 import com.zhousl.musicplayer.util.UIUtil;
@@ -47,6 +54,9 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     private MusicPlayer player;
     private Handler mHandler;
     private long REFRESH_DELAY = 1000;
+    private RemoteReceiver remoteReceiver;
+    private AppCompatImageView playBackground;
+    private CircularProgressBar circleProgress;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,7 +67,15 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         player.addOnPlayStateChangedListener(this);
         mHandler = new Handler(Looper.getMainLooper());
         init();
+        initReceiver();
         refreshViewState();
+    }
+
+    private void initReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Action.REMOTE_STOP);
+        remoteReceiver = new RemoteReceiver();
+        registerReceiver(remoteReceiver, filter);
     }
 
     private Runnable r = new Runnable() {
@@ -76,14 +94,9 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         curState = states[stateIndex];
         toolbar.setTitle(player.getMusic().getName());
         toolbar.setSubtitle(player.getMusic().getArtist());
-        if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
-            playPause.setImageResource(R.mipmap.m_pause);
-        } else {
-            playPause.setImageResource(R.mipmap.m_play);
-        }
+        playPause.setSelected(player.getMusic().getState() == Music.MusicState.STATE_PLAYING);
         artist.setText(player.getMusic().getArtist());
         lrc.setText("");
-//        refreshProgress();
         if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
             mHandler.post(r);
         } else if (player.getMusic().getState() == Music.MusicState.STATE_PAUSE) {
@@ -94,6 +107,9 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     private void refreshProgress() {
         progress.setMax((int) player.getMusic().getDuration());
         progress.setProgress(player.getCurPlayPosition());
+        circleProgress.setMax((int) player.getMusic().getDuration());
+        circleProgress.setProgress(player.getCurPlayPosition());
+
         timePlayed.setText(TimeUtil.getFormattedTimeStr(player.getCurPlayPosition()));
         timeTotal.setText(TimeUtil.getFormattedTimeStr(player.getMusic().getDuration()));
     }
@@ -102,13 +118,9 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         album = (ImageView) findViewById(R.id.album);
         artist = (TextView) findViewById(R.id.artist);
         lrc = (TextView) findViewById(R.id.lrc);
-        AppCompatImageView playBackground = (AppCompatImageView) findViewById(R.id.play_background);
-        Glide.with(this)
-                .load(R.drawable.play_bg)
-                .centerCrop()
-                .crossFade(500)
-                .bitmapTransform(new BlurTransformation(this, 40))
-                .into(playBackground);
+        circleProgress = (CircularProgressBar) findViewById(R.id.circle_progress);
+        playBackground = (AppCompatImageView) findViewById(R.id.play_background);
+        refreshArtworks();
         findViewById(R.id.play_state).setOnClickListener(this);
         findViewById(R.id.play_previous).setOnClickListener(this);
         findViewById(R.id.play_list).setOnClickListener(this);
@@ -129,10 +141,46 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         });
         ((RelativeLayout.LayoutParams) toolbar.getLayoutParams()).topMargin = UIUtil.getStatusBarHeight(this);
         toolbar.requestLayout();
-        Glide.with(this)
-                .load(R.drawable.play_bg)
-                .bitmapTransform(new CropCircleTransformation(this))
-                .into(album);
+    }
+
+    private void refreshArtworks() {
+        if (player != null && player.getMusic() != null) {
+            byte[] thumb = MusicHelper.getThumb(player.getMusic().getFilePath());
+            if (thumb != null) {
+                Glide.with(this)
+                        .load(thumb)
+                        .centerCrop()
+                        .crossFade(500)
+                        .bitmapTransform(new BlurTransformation(this, 80))
+                        .into(playBackground);
+                Glide.with(this)
+                        .load(thumb)
+                        .bitmapTransform(new CropCircleTransformation(this))
+                        .into(album);
+            } else {
+                Glide.with(this)
+                        .load(R.drawable.play_bg)
+                        .centerCrop()
+                        .crossFade(500)
+                        .bitmapTransform(new BlurTransformation(this, 80))
+                        .into(playBackground);
+                Glide.with(this)
+                        .load(R.drawable.play_bg)
+                        .bitmapTransform(new CropCircleTransformation(this))
+                        .into(album);
+            }
+        } else {
+            Glide.with(this)
+                    .load(R.drawable.play_bg)
+                    .centerCrop()
+                    .crossFade(500)
+                    .bitmapTransform(new BlurTransformation(this, 80))
+                    .into(playBackground);
+            Glide.with(this)
+                    .load(R.drawable.play_bg)
+                    .bitmapTransform(new CropCircleTransformation(this))
+                    .into(album);
+        }
     }
 
     @Override
@@ -161,12 +209,15 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void doPlayOrPause() {
-        if (player.getMusic().getState() == Music.MusicState.STATE_PAUSE) {
+        Music music = player.getMusic();
+        if (music == null)
+            return;
+        if (music.getState() == Music.MusicState.STATE_PAUSE) {
             player.resume();
-        } else if (player.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
+        } else if (music.getState() == Music.MusicState.STATE_PLAYING) {
             player.pause();
         } else {
-            if (player.getMusic() == null) {
+            if (music == null) {
                 if (player.getMusicList() == null || player.getMusicList().size() == 0)
                     return;
                 player.playIndex(0);
@@ -182,6 +233,8 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
         player.removeOnPlayStateChangeListener(this);
         if (r != null)
             mHandler.removeCallbacks(r);
+        if (remoteReceiver != null)
+            unregisterReceiver(remoteReceiver);
     }
 
     @Override
@@ -208,10 +261,24 @@ public class PlayingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onMusicPlay(Music music) {
         refreshViewState();
+        refreshArtworks();
     }
 
     @Override
     public void onMusicResume(Music music) {
         mHandler.post(r);
+    }
+
+    class RemoteReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null || intent.getAction().equals(Action.REMOTE_STOP)) {
+                Music music = player.getMusic();
+                if (music == null)
+                    return;
+                playPause.setSelected(music.getState() == Music.MusicState.STATE_PLAYING);
+            }
+        }
     }
 }

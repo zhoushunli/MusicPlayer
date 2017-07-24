@@ -14,7 +14,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#99000000">
+        android:background="#66000000">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -27,32 +27,37 @@
             app:title="我好像在哪儿见过你"
             app:titleTextColor="#fff"></android.support.v7.widget.Toolbar>
 
-        <ImageView
-            android:id="@+id/album"
-            android:layout_width="230dp"
-            android:layout_height="230dp"
-            android:layout_below="@id/toolbar"
-            android:layout_centerHorizontal="true"
-            android:padding="5dp"
-            android:layout_marginTop="40dp" />
-
-        <com.zhousl.customui.CircularProgressBar
+        <RelativeLayout
+            android:id="@+id/album_circle"
             android:layout_width="250dp"
             android:layout_height="250dp"
-            android:layout_alignBottom="@id/album"
-            android:layout_alignLeft="@id/album"
-            android:layout_alignRight="@id/album"
-            android:layout_alignTop="@id/album"
-            app:maxValue="100"
-            app:progress="30"
-            app:backgroundColor="#44ffffff"
-            app:progressColor="@color/colorAccent" />
+            android:layout_below="@id/toolbar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp">
+
+            <ImageView
+                android:id="@+id/album"
+                android:layout_width="230dp"
+                android:layout_height="230dp"
+                android:layout_centerInParent="true"
+                android:padding="5dp" />
+
+            <com.zhousl.customui.CircularProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:backgroundColor="#44ffffff"
+                app:maxValue="100"
+                app:progress="0"
+                android:id="@+id/circle_progress"
+                app:progressColor="@color/colorAccent"
+                app:sweepAngle="360" />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/album"
+            android:layout_below="@id/album_circle"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:text="薛之谦"
@@ -65,26 +70,22 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/artist"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="16dp"
             android:text="我好在哪儿见过你"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
         <LinearLayout
             android:id="@+id/play_control"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/lrc"
-            android:layout_marginTop="30dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingLeft="20dp"
             android:paddingRight="20dp">
-
-            <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/play_state"
-                style="@style/controller_bt_style"
-                android:padding="2dp"
-                android:src="@mipmap/shuffle" />
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/play_previous"
@@ -94,24 +95,24 @@
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/play_pause"
                 style="@style/controller_bt_style"
-                android:src="@mipmap/m_play" />
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:src="@drawable/play_pause_white_selector" />
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/play_next"
                 style="@style/controller_bt_style"
                 android:src="@mipmap/m_next" />
-
-            <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/play_list"
-                style="@style/controller_bt_style"
-                android:src="@mipmap/playlist" />
         </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/progress_control"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/play_control"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingLeft="20dp"
@@ -121,18 +122,11 @@
                 android:id="@+id/time_played"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
                 android:text="0:00"
                 android:textColor="#fff"
                 android:textSize="10sp" />
-
-            <android.support.v7.widget.AppCompatSeekBar
-                android:id="@+id/play_progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/time_played"
-                android:layout_marginTop="10dp"
-                android:progressBackgroundTint="#ffffffff" />
 
             <TextView
                 android:id="@+id/time_total"
@@ -140,12 +134,47 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignTop="@id/time_played"
-                android:layout_marginRight="10dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp"
                 android:text="5:30"
                 android:textColor="#fff"
                 android:textSize="10sp" />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/play_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="10dp"
+                android:layout_toLeftOf="@id/time_total"
+                android:layout_toRightOf="@id/time_played"
+                android:progressBackgroundTint="#ffffffff" />
         </RelativeLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progress_control"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/play_state"
+                style="@style/controller_bt_style"
+                android:layout_marginRight="40dp"
+                android:padding="2dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@mipmap/shuffle" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/play_list"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                style="@style/controller_bt_style"
+                android:src="@mipmap/playlist" />
+        </LinearLayout>
     </RelativeLayout>
 
 </FrameLayout>

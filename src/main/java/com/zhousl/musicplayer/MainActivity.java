@@ -1,5 +1,9 @@
 package com.zhousl.musicplayer;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,16 +17,19 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.zhousl.musicplayer.adapter.HomePageAdapter;
 import com.zhousl.musicplayer.constants.Action;
 import com.zhousl.musicplayer.frag.LocalFrag;
 import com.zhousl.musicplayer.frag.NetFrag;
+import com.zhousl.musicplayer.interf.Player;
 import com.zhousl.musicplayer.service.PlayService;
 import com.zhousl.musicplayer.util.Preferences;
 import com.zhousl.musicplayer.util.UIUtil;
@@ -30,11 +37,15 @@ import com.zhousl.musicplayer.view.PlayingActivity;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
+public class MainActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, Player.onPlayStateChangedListener {
 
     //用于和Playservice进行通信的binder对象
-    private PlayService.MyBinder mBinder;
+//    private PlayService.MyBinder mBinder;
+    private MusicPlayer mPlayer;
     private Intent mService;
     private MyConn mServiceConnection;
     private TextView localTab;
@@ -55,6 +66,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private View mController;
     private View more;
     private ImageView cover;
+    private ArrayList<Music> musicListDelay;
+    private Music musicDelay;
+    private ObjectAnimator animator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,15 +139,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
         if (mReceiver != null)
             unregisterReceiver(mReceiver);
+        if (mPlayer != null)
+            mPlayer.removeOnPlayStateChangeListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        if (v==more){
+        if (v == more) {
             showMore();
             return;
         }
-        if (v==mController){
+        if (v == mController) {
             startActivity(new Intent(this, PlayingActivity.class));
             return;
         }
@@ -148,20 +164,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private void showMore() {
-        PopupWindow moreWindow=new PopupWindow(this);
+        PopupWindow moreWindow = new PopupWindow(this);
         moreWindow.setWidth(UIUtil.getScreenDimen(this).first);
         View rootView = View.inflate(this, R.layout.more_layout, null);
         moreWindow.setContentView(rootView);
         rootView.findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,EqualizerActivity.class));
+                startActivity(new Intent(MainActivity.this, EqualizerActivity.class));
             }
         });
     }
 
     private void doPlayOrPause() {
-        Music music = mBinder.getMusic();
+        Music music = mPlayer.getMusic();
         if (music == null) {
             doPlayNew(0);
             return;
@@ -170,18 +186,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             doMusicResume();
         } else if (music.getState() == Music.MusicState.STATE_PLAYING) {
             doMusicPause();
-        }else {
+        } else {
             doPlayLatestStoppedMusic();
         }
     }
 
     private void doPlayLatestStoppedMusic() {
-        mBinder.play();
+        mPlayer.play();
         refreshControllerStatus(getMusic());
     }
 
     public Music getMusic() {
-        return mBinder.getMusic();
+        return mPlayer.getMusic();
     }
 
     @Override
@@ -217,6 +233,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         target.startAnimation(sa);
     }
 
+    @Override
+    public void onMusicPause(Music music) {
+        refreshControllerStatus(music);
+        mLocalFrag.notifyPlayingChanged();
+    }
+
+    @Override
+    public void onMusicPlay(Music music) {
+        refreshControllerStatus(music);
+        mLocalFrag.notifyPlayingChanged();
+    }
+
+    @Override
+    public void onMusicResume(Music music) {
+        refreshControllerStatus(music);
+        mLocalFrag.notifyPlayingChanged();
+    }
+
     class MyConn implements ServiceConnection {
 
         @Override
@@ -224,7 +258,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             if (service == null)
                 return;
             if (service instanceof PlayService.MyBinder) {
-                MainActivity.this.mBinder = (PlayService.MyBinder) service;
+                MainActivity.this.mPlayer = MusicPlayer.getPlayer();
+                mPlayer.addOnPlayStateChangedListener(MainActivity.this);
+                if (musicDelay != null) {
+                    setMusic(musicDelay);
+                }
+                if (musicListDelay != null) {
+                    setMusicList(musicListDelay);
+                }
             }
         }
 
@@ -235,36 +276,52 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     public void setMusic(Music music) {
-        mBinder.setMusic(music);
+        if (mPlayer == null) {
+            this.setMusicDelay(music);
+        } else {
+            mPlayer.setMusic(music);
+        }
     }
 
     public void setMusicList(ArrayList<Music> musicList) {
-        mBinder.setMusicList(musicList);
+        if (mPlayer == null) {
+            this.setMusicListDelay(musicList);
+        } else {
+            mPlayer.setMusicList(musicList);
+        }
+    }
+
+    public void setMusicDelay(Music musicDelay) {
+        this.musicDelay = musicDelay;
+    }
+
+    public void setMusicListDelay(ArrayList<Music> musicListDelay) {
+        this.musicListDelay = musicListDelay;
     }
 
     public void doPlayNew(int index) {
-        mBinder.playIndex(index);
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.playIndex(index);
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doPlayNext() {
-        mBinder.playNext();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.playNext();
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doPlayPrevious() {
-        mBinder.playPrevious();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.playPrevious();
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doMusicPause() {
-        mBinder.pause();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.pause();
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     public void doMusicResume() {
-        mBinder.resume();
-        refreshControllerStatus(mBinder.getMusic());
+        mPlayer.resume();
+//        refreshControllerStatus(mPlayer.getMusic());
     }
 
     @Override
@@ -284,26 +341,77 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action==null)
+            if (action == null)
                 return;
             if (action.equals(Action.PLAY_NEXT)) {
-                refreshControllerStatus(getMusic());
                 mLocalFrag.notifyPlayingChanged();
-            }else if (action.equals(Action.REMOTE_STOP)){
+                refreshControllerStatus(getMusic());
+            } else if (action.equals(Action.REMOTE_STOP)) {
                 mLocalFrag.notifyStop();
             }
         }
     }
 
+    private Music lastMusic;
+
     public void refreshControllerStatus(Music music) {
-        if (music == null){
+        if (music == null) {
             return;
+        }
+        byte[] thumb = MusicHelper.getThumb(music.getFilePath());
+        if (thumb != null && music != lastMusic) {
+            Glide.with(this)
+                    .load(thumb)
+                    .asBitmap()
+                    .transform(new CropCircleTransformation(this))
+                    .into(cover);
+            lastMusic = music;
+        }
+        if (music.getState() == Music.MusicState.STATE_PLAYING) {
+            abortAnime();
+            animateArtWorks();
+        } else {
+            abortAnime();
         }
         mTitle.setText(music.getName());
         mArtist.setText(music.getArtist());
         mPlay.setSelected(music.getState() == Music.MusicState.STATE_PLAYING);
-        if (music.getAlbum()!=null){
-            Log.i("album--",music.getAlbum());
+        if (music.getAlbum() != null) {
+            Log.i("album--", music.getAlbum());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mPlayer != null && mPlayer.getMusic() != null && mPlayer.getMusic().getState() == Music.MusicState.STATE_PLAYING) {
+            animateArtWorks();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        abortAnime();
+    }
+
+    private float curPosition;
+    private void animateArtWorks() {
+        animator = ObjectAnimator.ofFloat(cover, "rotation",Math.max(0,curPosition), Math.max(0,curPosition)+360);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(12000);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                curPosition=Float.valueOf(animation.getAnimatedValue("rotation").toString());
+            }
+        });
+        animator.start();
+    }
+
+    private void abortAnime() {
+        if (animator != null)
+            animator.cancel();
     }
 }
