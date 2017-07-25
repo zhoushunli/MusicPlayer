@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group android:id="@+id/function_group">
         <item
             android:id="@+id/nav_eq"
             android:icon="@drawable/ic_eq"
@@ -10,13 +10,9 @@
             android:id="@+id/nav_timer"
             android:icon="@drawable/ic_timer"
             android:title="Timer" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_star"
-            android:title="Rate Us" />
     </group>
 
-    <group android:checkableBehavior="single">
+    <group android:id="@+id/feedback_group">
         <item
             android:id="@+id/nav_share"
             android:icon="@drawable/ic_share"
@@ -26,9 +22,13 @@
             android:icon="@drawable/ic_email"
             android:title="Contact Us" />
         <item
-            android:id="@+id/nav_setting"
-            android:icon="@drawable/ic_settings_48px"
-            android:title="Setting" />
+            android:id="@+id/nav_rate"
+            android:icon="@drawable/ic_star"
+            android:title="Rate Us" />
     </group>
+    <item
+        android:id="@+id/nav_setting"
+        android:icon="@drawable/ic_settings_48px"
+        android:title="Setting" />
 
 </menu>
