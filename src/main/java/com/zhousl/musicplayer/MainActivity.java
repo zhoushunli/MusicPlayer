@@ -12,10 +12,13 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
@@ -31,6 +34,7 @@ import com.zhousl.musicplayer.frag.LocalFrag;
 import com.zhousl.musicplayer.frag.NetFrag;
 import com.zhousl.musicplayer.interf.Player;
 import com.zhousl.musicplayer.service.PlayService;
+import com.zhousl.musicplayer.util.IntentUtil;
 import com.zhousl.musicplayer.util.Preferences;
 import com.zhousl.musicplayer.util.UIUtil;
 import com.zhousl.musicplayer.view.PlayingActivity;
@@ -69,6 +73,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ArrayList<Music> musicListDelay;
     private Music musicDelay;
     private ObjectAnimator animator;
+    private NavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +100,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mArtist = (TextView) findViewById(R.id.artist);
         mController = findViewById(R.id.controller);
         cover = (ImageView) findViewById(R.id.music_cover);
+        navView = (NavigationView) findViewById(R.id.nav_view);
         more = findViewById(R.id.more);
         more.setOnClickListener(this);
         mLast = findViewById(R.id.last);
@@ -111,6 +117,38 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         localTab.setSelected(true);
         localTab.setScaleX(SCALE_FACTOR);
         localTab.setScaleY(SCALE_FACTOR);
+
+        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.nav_eq:
+                        Toast.makeText(MainActivity.this, "eq", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.nav_timer:
+                        Toast.makeText(MainActivity.this, "timer", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.nav_share:
+                        Toast.makeText(MainActivity.this, "share", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.nav_send:
+                        try {
+                            startActivity(IntentUtil.getEmailIntent(MainActivity.this));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(MainActivity.this, "Email client not found", Toast.LENGTH_SHORT).show();
+                        }
+                        Toast.makeText(MainActivity.this, "send", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.nav_rate:
+                        Toast.makeText(MainActivity.this, "rate", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.nav_setting:
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     private ArrayList<Fragment> prepareFrag() {
